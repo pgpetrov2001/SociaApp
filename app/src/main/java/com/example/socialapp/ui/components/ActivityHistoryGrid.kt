@@ -21,7 +21,7 @@ fun ActivityHistorySection(stats: SocialStats) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        color = DarkCard
+        color = SurfaceElevated
     ) {
         Column(
             modifier = Modifier
@@ -56,7 +56,7 @@ fun ActivityHistorySection(stats: SocialStats) {
                             modifier = Modifier
                                 .size(8.dp)
                                 .clip(CircleShape)
-                                .background(AccentGreen)
+                                .background(ActivityHigh)
                         )
                     }
                 }
@@ -149,6 +149,6 @@ fun ActivityDot(isActive: Boolean) {
         modifier = Modifier
             .size(10.dp)
             .clip(CircleShape)
-            .background(if (isActive) AccentGreen else InactiveGray)
+            .background(if (isActive) ActivityHigh else SurfaceElevatedHigher)
     )
 }

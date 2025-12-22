@@ -13,49 +13,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = AccentGreen,
-    secondary = AccentOrange,
-    tertiary = Pink80,
-    background = DarkBackground,
-    surface = DarkSurface,
-    onPrimary = Color.Black,
-    onSecondary = Color.White,
+    primary = Success,
+    secondary = StreakPrimary,
+    tertiary = ActivityHigh,
+    background = BackgroundPrimary,
+    surface = SurfaceElevated,
+    onPrimary = BackgroundPrimary,
+    onSecondary = TextPrimary,
+    onTertiary = TextPrimary,
     onBackground = TextPrimary,
-    onSurface = TextPrimary
-)
-
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    onSurface = TextPrimary,
+    error = Error,
+    surfaceVariant = SurfaceElevatedHigher,
+    onSurfaceVariant = TextSecondary
 )
 
 @Composable
 fun SocialAppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,  // Always use dark theme
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,  // Disable dynamic color to use our custom design system
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    val colorScheme = DarkColorScheme
 
     MaterialTheme(
         colorScheme = colorScheme,

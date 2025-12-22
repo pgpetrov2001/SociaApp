@@ -23,9 +23,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF000000)
+@Preview(showBackground = true, backgroundColor = 0xFF0A0A0A)
 @Composable
-fun SocialTrackerPreview() {
+fun SocialTrackerScreenPreview() {
     SocialAppTheme(darkTheme = true, dynamicColor = false) {
         SocialTrackerScreen()
     }
