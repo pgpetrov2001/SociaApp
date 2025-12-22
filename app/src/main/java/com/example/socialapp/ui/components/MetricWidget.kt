@@ -33,26 +33,26 @@ fun LifetimeWidget(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Large number
+            // Large number - iOS style like workout app
             Text(
                 text = totalCount.toString(),
-                style = MaterialTheme.typography.displayMedium.copy(
-                    fontSize = 72.sp,
-                    fontWeight = FontWeight.Bold
-                ),
+                fontSize = 64.sp,
+                fontWeight = FontWeight.W600,
+                letterSpacing = (-1.5).sp,
                 color = TextPrimary
             )
 
             Spacer(modifier = Modifier.height(Spacing.sm))
 
-            // "Total conversations" label
+            // "Total conversations" label - medium weight like workout app
             Text(
                 text = "Total conversations",
                 style = MaterialTheme.typography.bodyMedium.copy(
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.sp
                 ),
-                color = TextPrimary,
-                fontWeight = FontWeight.SemiBold,
+                color = TextSecondary,
                 maxLines = 1,
                 softWrap = false
             )

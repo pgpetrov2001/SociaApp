@@ -1,6 +1,7 @@
 package com.example.socialapp.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -23,7 +24,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -174,7 +177,7 @@ fun SocialTrackerScreen(
                 scope.launch {
                     snackbarHostState.showSnackbar(
                         message = message,
-                        duration = SnackbarDuration.Long
+                        duration = SnackbarDuration.Short
                     )
                 }
 
@@ -293,12 +296,16 @@ private fun SocialTrackerFAB(onClick: () -> Unit) {
 /**
  * Custom styled snackbar matching iOS design
  * Appears at top with grey background
+ * Swipe up to dismiss
  */
 @Composable
 private fun CustomSnackbar(data: SnackbarData) {
+    var offsetY by remember { mutableStateOf(0f) }
+
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .offset { IntOffset(0, offsetY.toInt()) }
             .padding(horizontal = Spacing.md, vertical = Spacing.xs)
             .shadow(
                 elevation = 8.dp,
@@ -306,6 +313,26 @@ private fun CustomSnackbar(data: SnackbarData) {
             )
             .clip(RoundedCornerShape(CornerRadius.lg))
             .background(SurfaceElevated)
+            .pointerInput(Unit) {
+                detectVerticalDragGestures(
+                    onDragEnd = {
+                        if (offsetY < -100f) {
+                            // Swiped up enough, dismiss
+                            data.dismiss()
+                        } else {
+                            // Not enough, reset position
+                            offsetY = 0f
+                        }
+                    },
+                    onVerticalDrag = { _, dragAmount ->
+                        // Only allow upward swipes
+                        val newOffset = offsetY + dragAmount
+                        if (newOffset <= 0f) {
+                            offsetY = newOffset
+                        }
+                    }
+                )
+            }
             .padding(horizontal = Spacing.md, vertical = Spacing.md)
     ) {
         Row(

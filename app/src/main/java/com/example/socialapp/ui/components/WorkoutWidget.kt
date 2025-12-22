@@ -78,7 +78,7 @@ fun TodayWidget(
             ) {
                 // Progress ring
                 Canvas(modifier = Modifier.size(100.dp)) {
-                    val strokeWidth = 10.dp.toPx()
+                    val strokeWidth = 5.dp.toPx() // Slimmer circle like workout app
 
                     // Background circle
                     drawCircle(
@@ -97,23 +97,25 @@ fun TodayWidget(
                     )
                 }
 
-                // Number
+                // Number - iOS style like workout app
                 Text(
                     text = todayCount.toString(),
-                    style = MaterialTheme.typography.displayMedium.copy(
-                        fontSize = 48.sp,
-                        fontWeight = FontWeight.Bold
-                    ),
+                    fontSize = 46.sp,
+                    fontWeight = FontWeight.W600,
+                    letterSpacing = (-1).sp,
                     color = TextPrimary
                 )
             }
 
-            // Label
+            // Label - medium weight like workout app
             Text(
                 text = "Today",
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextPrimary,
-                fontWeight = FontWeight.SemiBold
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    letterSpacing = 0.sp
+                ),
+                color = TextSecondary
             )
         }
     }
