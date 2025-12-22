@@ -51,16 +51,21 @@ fun ActivityHistoryExpandedModal(
         exit = fadeOut(animationSpec = tween(250))
     ) {
         Box(
-            modifier = modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.5f))
-                .blur(8.dp)
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null
-                ) { onDismiss() },
+            modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
+            // Blurred background overlay
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .blur(8.dp)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { onDismiss() }
+            )
+            // Modal Content (not blurred)
             AnimatedVisibility(
                 visible = isVisible,
                 enter = scaleIn(
@@ -272,94 +277,136 @@ private fun MiniActivityDot(interactionCount: Int) {
 @Composable
 private fun OverallStatsSection(stats: SocialStats) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(Spacing.md) // Adjusted spacing between rows
+        verticalArrangement = Arrangement.spacedBy(Spacing.lg)
     ) {
-        // First row of stats
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
-        ) {
-            // Current Streak StatItem with progress bar
-            StreakStatItem(
-                currentStreak = stats.streakCount,
-                longestStreak = stats.longestStreak,
-                modifier = Modifier.weight(1f)
-            )
-            // Longest Streak StatItem
-            StatItem(
-                value = stats.longestStreak.toString(),
-                label = "Longest Streak",
-                suffix = "d",
-                modifier = Modifier.weight(1f)
-            )
-        }
+        Text(
+            text = "Streak Progress",
+            style = MaterialTheme.typography.titleMedium,
+            color = TextSecondary,
+            fontWeight = FontWeight.Medium
+        )
 
-        // Second row of stats
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+        // Current Streak and Longest Streak (reverting to previous layout)
+        StreakProgressBar(
+            currentStreak = stats.streakCount,
+            longestStreak = stats.longestStreak
+        )
+
+        Spacer(modifier = Modifier.height(Spacing.md)) // Add some space
+
+        // Other stats - not in boxes, simple text rows
+        Column(
+            verticalArrangement = Arrangement.spacedBy(Spacing.sm)
         ) {
-            // Total Active Days StatItem
-            StatItem(
-                value = stats.activeDays.toString(),
-                label = "Active Days",
-                suffix = "",
-                modifier = Modifier.weight(1f)
-            )
-            // Most Active Day StatItem
-            StatItem(
-                value = stats.mostActiveDay?.interactionCount?.toString() ?: "0",
-                label = "Most Active Day",
-                suffix = " interactions",
-                modifier = Modifier.weight(1f)
-            )
+            // Total Active Days
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Total Active Days",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
+                )
+                Text(
+                    text = stats.activeDays.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextPrimary
+                )
+            }
+
+            // Most Active Day
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Most Active Day",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary
+                )
+                Text(
+                    text = "${stats.mostActiveDay?.interactionCount ?: 0} interactions",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextPrimary
+                )
+            }
         }
     }
 }
 
 @Composable
-private fun StreakStatItem(
+private fun StreakProgressBar(
     currentStreak: Int,
-    longestStreak: Int,
-    modifier: Modifier = Modifier
+    longestStreak: Int
 ) {
     val progress = if (longestStreak > 0) {
         (currentStreak.toFloat() / longestStreak.toFloat()).coerceIn(0f, 1f)
     } else 0f
 
     Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(CornerRadius.md))
-            .background(SurfaceElevated)
-            .padding(Spacing.md),
-        verticalArrangement = Arrangement.spacedBy(Spacing.xs)
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(Spacing.md)
     ) {
-        Row(
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(Spacing.xs)
-        ) {
-            Text(
-                text = currentStreak.toString(),
-                style = MaterialTheme.typography.headlineLarge,
-                color = TextPrimary,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = "d",
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-        }
-        Text(
-            text = "Current Streak",
-            style = MaterialTheme.typography.labelMedium,
-            color = TextTertiary
+        // Current Streak row with progress bar
+        StreakRow(
+            label = "Current",
+            value = "${currentStreak}d",
+            progress = progress,
+            color = StreakPrimary
         )
 
-        Spacer(modifier = Modifier.height(Spacing.xs)) // Spacer between label and progress bar
+        // Longest Streak - just text, no bar
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Longest",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary
+            )
+            Text(
+                text = "${longestStreak}d",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextPrimary
+            )
+        }
+    }
+}
 
-        // Progress bar
+@Composable
+private fun StreakRow(
+    label: String,
+    value: String,
+    progress: Float,
+    color: Color
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(6.dp)
+    ) {
+        // Label and value row
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary
+            )
+            Text(
+                text = value,
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextPrimary
+            )
+        }
+
+        // Thin progress bar
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -372,7 +419,7 @@ private fun StreakStatItem(
                     .fillMaxWidth(progress)
                     .fillMaxHeight()
                     .clip(RoundedCornerShape(3.dp))
-                    .background(StreakPrimary)
+                    .background(color)
             )
         }
     }
