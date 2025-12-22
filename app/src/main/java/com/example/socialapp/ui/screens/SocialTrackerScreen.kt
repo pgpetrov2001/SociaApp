@@ -11,50 +11,70 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.socialapp.data.SocialStats
 import com.example.socialapp.data.generateSampleData
 import com.example.socialapp.ui.components.*
 import com.example.socialapp.ui.theme.*
+import com.example.socialapp.ui.viewmodel.SocialTrackerViewModel
 
 /**
  * Main Social Tracker screen with iOS-style widget layout
+ * Integrated with ViewModel for state management
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SocialTrackerScreen(
     modifier: Modifier = Modifier,
     stats: SocialStats = remember { generateSampleData() },
-    todayCount: Int = 7,
-    dailyGoal: Int = 7,
-    lifetimeTotal: Int = 0,
     activeDays: Int = 125,
     notesCount: Int = 251,
-    currentStreak: Int = 7
+    currentStreak: Int = 7,
+    viewModel: SocialTrackerViewModel = viewModel()
 ) {
+    // Collect UI state from ViewModel
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Modal states
     var showActivityHistoryModal by remember { mutableStateOf(false) }
+    var showSettingsModal by remember { mutableStateOf(false) }
+
+    // Determine if any modal is visible
+    val isAnyModalVisible = showActivityHistoryModal || showSettingsModal
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .background(BackgroundPrimary),
+                .background(BackgroundPrimary)
+                .then(
+                    if (isAnyModalVisible) Modifier.blur(8.dp)
+                    else Modifier
+                ),
             containerColor = BackgroundPrimary,
             topBar = {
-                SocialTrackerTopBar(currentStreak = currentStreak)
+                SocialTrackerTopBar(
+                    currentStreak = currentStreak,
+                    onSettingsClick = { showSettingsModal = true }
+                )
             },
             floatingActionButton = {
-                SocialTrackerFAB()
+                SocialTrackerFAB(
+                    onClick = { viewModel.incrementConversations() }
+                )
             },
             floatingActionButtonPosition = FabPosition.Center
         ) { paddingValues ->
@@ -76,8 +96,8 @@ fun SocialTrackerScreen(
                 ) {
                     // Widget 1: Today's conversation count
                     TodayWidget(
-                        todayCount = todayCount,
-                        dailyGoal = dailyGoal,
+                        todayCount = uiState.todayCount,
+                        dailyGoal = uiState.dailyQuota,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
@@ -85,7 +105,7 @@ fun SocialTrackerScreen(
 
                     // Widget 2: Lifetime total conversations
                     LifetimeWidget(
-                        totalCount = lifetimeTotal,
+                        totalCount = uiState.totalCount,
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight()
@@ -120,12 +140,23 @@ fun SocialTrackerScreen(
             stats = stats,
             onDismiss = { showActivityHistoryModal = false }
         )
+
+        // Settings Modal
+        SettingsModal(
+            isVisible = showSettingsModal,
+            currentQuota = uiState.dailyQuota,
+            onQuotaChange = { newQuota -> viewModel.updateDailyQuota(newQuota) },
+            onDismiss = { showSettingsModal = false }
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SocialTrackerTopBar(currentStreak: Int) {
+private fun SocialTrackerTopBar(
+    currentStreak: Int,
+    onSettingsClick: () -> Unit
+) {
     TopAppBar(
         title = {
             Text(
@@ -165,7 +196,7 @@ private fun SocialTrackerTopBar(currentStreak: Int) {
 
             // Settings gear icon
             IconButton(
-                onClick = { /* Handle settings click */ },
+                onClick = onSettingsClick,
                 modifier = Modifier
                     .size(40.dp)
                     .clip(CircleShape)
@@ -187,9 +218,9 @@ private fun SocialTrackerTopBar(currentStreak: Int) {
 }
 
 @Composable
-private fun SocialTrackerFAB() {
+private fun SocialTrackerFAB(onClick: () -> Unit) {
     FloatingActionButton(
-        onClick = { /* Handle add conversation */ },
+        onClick = onClick,
         modifier = Modifier.size(64.dp),
         shape = CircleShape,
         containerColor = SurfaceElevated,

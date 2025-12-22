@@ -43,24 +43,18 @@ fun LifetimeWidget(
                 color = TextPrimary
             )
 
-            Spacer(modifier = Modifier.height(Spacing.xs))
-
-            // "Total" label
-            Text(
-                text = "Total",
-                style = MaterialTheme.typography.bodyMedium,
-                color = TextSecondary,
-                fontWeight = FontWeight.Medium
-            )
-
-            Spacer(modifier = Modifier.height(Spacing.md))
+            Spacer(modifier = Modifier.height(Spacing.sm))
 
             // "Total conversations" label
             Text(
                 text = "Total conversations",
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    fontSize = 14.sp
+                ),
                 color = TextPrimary,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                softWrap = false
             )
         }
     }

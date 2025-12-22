@@ -25,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
@@ -54,12 +53,11 @@ fun ActivityHistoryExpandedModal(
             modifier = modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            // Blurred background overlay
+            // Background overlay
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.5f))
-                    .blur(8.dp)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null

@@ -1,5 +1,7 @@
 package com.example.socialapp.ui.components
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,6 +12,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,6 +27,10 @@ import com.example.socialapp.ui.theme.*
 
 /**
  * Widget 1: Today's conversation count with circular progress
+ *
+ * Circle color logic:
+ * - White: when todayCount < dailyGoal
+ * - Green: when todayCount >= dailyGoal (quota met)
  */
 @Composable
 fun TodayWidget(
@@ -30,6 +38,31 @@ fun TodayWidget(
     dailyGoal: Int,
     modifier: Modifier = Modifier
 ) {
+    // Calculate progress
+    val targetProgress = if (dailyGoal > 0) {
+        (todayCount.toFloat() / dailyGoal).coerceIn(0f, 1f)
+    } else 0f
+
+    // Determine if quota is met
+    val isQuotaMet = todayCount >= dailyGoal && dailyGoal > 0
+
+    // Determine circle color based on quota completion
+    val circleColor = if (isQuotaMet) {
+        Color(0xFF39D98A) // Green when quota is met
+    } else {
+        Color.White // White when quota is not met
+    }
+
+    // Animated progress for smooth transitions
+    val animatedProgress = remember { Animatable(0f) }
+
+    LaunchedEffect(targetProgress) {
+        animatedProgress.animateTo(
+            targetValue = targetProgress,
+            animationSpec = tween(durationMillis = 500)
+        )
+    }
+
     WidgetCard(modifier = modifier) {
         Column(
             modifier = Modifier
@@ -54,12 +87,11 @@ fun TodayWidget(
                         style = Stroke(width = strokeWidth)
                     )
 
-                    // Progress arc
-                    val progress = if (dailyGoal > 0) (todayCount.toFloat() / dailyGoal).coerceIn(0f, 1f) else 0f
+                    // Progress arc with animated progress and dynamic color
                     drawArc(
-                        color = Color(0xFF39D98A),
+                        color = circleColor,
                         startAngle = -90f,
-                        sweepAngle = 360f * progress,
+                        sweepAngle = 360f * animatedProgress.value,
                         useCenter = false,
                         style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                     )
