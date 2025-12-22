@@ -11,15 +11,18 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,6 +33,7 @@ import com.example.socialapp.data.generateSampleData
 import com.example.socialapp.ui.components.*
 import com.example.socialapp.ui.theme.*
 import com.example.socialapp.ui.viewmodel.SocialTrackerViewModel
+import kotlinx.coroutines.launch
 
 /**
  * Main Social Tracker screen with iOS-style widget layout
@@ -52,6 +56,10 @@ fun SocialTrackerScreen(
     var showSettingsModal by remember { mutableStateOf(false) }
     var showAddInteractionModal by remember { mutableStateOf(false) }
     var showNotesHistoryModal by remember { mutableStateOf(false) }
+
+    // Snackbar state
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
     // Determine if any modal is visible
     val isAnyModalVisible = showActivityHistoryModal || showSettingsModal ||
@@ -157,6 +165,19 @@ fun SocialTrackerScreen(
             isVisible = showAddInteractionModal,
             onSave = { qualityRating, noteText ->
                 viewModel.addInteraction(qualityRating, noteText)
+
+                // Show celebratory snackbar
+                val todayCount = uiState.todayCount + 1
+                val quota = uiState.dailyQuota
+                val message = getEncouragingMessage(todayCount, quota)
+
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Long
+                    )
+                }
+
                 showAddInteractionModal = false
             },
             onDismiss = { showAddInteractionModal = false }
@@ -168,6 +189,21 @@ fun SocialTrackerScreen(
             interactions = uiState.interactions,
             onDismiss = { showNotesHistoryModal = false }
         )
+
+        // Snackbar at top of screen
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.TopCenter)
+                .padding(top = 8.dp)
+        ) {
+            SnackbarHost(
+                hostState = snackbarHostState,
+                snackbar = { data ->
+                    CustomSnackbar(data)
+                }
+            )
+        }
     }
 }
 
@@ -251,6 +287,59 @@ private fun SocialTrackerFAB(onClick: () -> Unit) {
             contentDescription = "Add conversation",
             modifier = Modifier.size(32.dp)
         )
+    }
+}
+
+/**
+ * Custom styled snackbar matching iOS design
+ * Appears at top with grey background
+ */
+@Composable
+private fun CustomSnackbar(data: SnackbarData) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = Spacing.md, vertical = Spacing.xs)
+            .shadow(
+                elevation = 8.dp,
+                shape = RoundedCornerShape(CornerRadius.lg)
+            )
+            .clip(RoundedCornerShape(CornerRadius.lg))
+            .background(SurfaceElevated)
+            .padding(horizontal = Spacing.md, vertical = Spacing.md)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "🎉",
+                style = MaterialTheme.typography.titleLarge
+            )
+            Text(
+                text = data.visuals.message,
+                style = MaterialTheme.typography.bodyLarge,
+                color = androidx.compose.ui.graphics.Color.White,
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
+            )
+        }
+    }
+}
+
+/**
+ * Generate encouraging message based on quota progress
+ */
+private fun getEncouragingMessage(currentCount: Int, quota: Int): String {
+    val progress = if (quota > 0) (currentCount.toFloat() / quota * 100).toInt() else 0
+
+    return when {
+        currentCount >= quota -> "🔥 Quota complete! You're crushing it!"
+        progress >= 75 -> "$currentCount out of $quota complete! Almost there!"
+        progress >= 50 -> "$currentCount out of $quota complete! Halfway done!"
+        progress >= 25 -> "$currentCount out of $quota complete! Keep it up!"
+        else -> "$currentCount out of $quota complete! Great start!"
     }
 }
 
