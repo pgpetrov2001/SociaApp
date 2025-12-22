@@ -2,6 +2,7 @@ package com.example.socialapp.data
 
 import java.time.LocalDate
 import java.time.YearMonth
+import java.util.UUID
 
 data class DayActivity(
     val date: LocalDate,
@@ -14,6 +15,14 @@ data class MonthActivity(
     val yearMonth: YearMonth,
     val days: List<DayActivity>,
     val totalInteractions: Int
+)
+
+data class InteractionNote(
+    val id: String = UUID.randomUUID().toString(),
+    val timestamp: Long = System.currentTimeMillis(),
+    val qualityRating: Int, // 1=Poor, 2=Good, 3=Great, 4=Amazing
+    val noteText: String,
+    val date: LocalDate = LocalDate.now()
 )
 
 data class SocialStats(

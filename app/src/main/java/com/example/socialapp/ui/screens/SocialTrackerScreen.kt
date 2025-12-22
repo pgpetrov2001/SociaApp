@@ -41,7 +41,6 @@ fun SocialTrackerScreen(
     modifier: Modifier = Modifier,
     stats: SocialStats = remember { generateSampleData() },
     activeDays: Int = 125,
-    notesCount: Int = 251,
     currentStreak: Int = 7,
     viewModel: SocialTrackerViewModel = viewModel()
 ) {
@@ -51,9 +50,12 @@ fun SocialTrackerScreen(
     // Modal states
     var showActivityHistoryModal by remember { mutableStateOf(false) }
     var showSettingsModal by remember { mutableStateOf(false) }
+    var showAddInteractionModal by remember { mutableStateOf(false) }
+    var showNotesHistoryModal by remember { mutableStateOf(false) }
 
     // Determine if any modal is visible
-    val isAnyModalVisible = showActivityHistoryModal || showSettingsModal
+    val isAnyModalVisible = showActivityHistoryModal || showSettingsModal ||
+        showAddInteractionModal || showNotesHistoryModal
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -73,7 +75,7 @@ fun SocialTrackerScreen(
             },
             floatingActionButton = {
                 SocialTrackerFAB(
-                    onClick = { viewModel.incrementConversations() }
+                    onClick = { showAddInteractionModal = true }
                 )
             },
             floatingActionButtonPosition = FabPosition.Center
@@ -123,10 +125,11 @@ fun SocialTrackerScreen(
 
                 // Widget 4: Notes History (full width, half height)
                 NotesHistoryWidget(
-                    notesCount = notesCount,
+                    notesCount = uiState.interactions.size,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(90.dp)
+                        .height(90.dp),
+                    onClick = { showNotesHistoryModal = true }
                 )
 
                 // Extra spacing at bottom for FAB
@@ -147,6 +150,23 @@ fun SocialTrackerScreen(
             currentQuota = uiState.dailyQuota,
             onQuotaChange = { newQuota -> viewModel.updateDailyQuota(newQuota) },
             onDismiss = { showSettingsModal = false }
+        )
+
+        // Add Interaction Modal
+        AddInteractionModal(
+            isVisible = showAddInteractionModal,
+            onSave = { qualityRating, noteText ->
+                viewModel.addInteraction(qualityRating, noteText)
+                showAddInteractionModal = false
+            },
+            onDismiss = { showAddInteractionModal = false }
+        )
+
+        // Notes History Modal
+        NotesHistoryModal(
+            isVisible = showNotesHistoryModal,
+            interactions = uiState.interactions,
+            onDismiss = { showNotesHistoryModal = false }
         )
     }
 }

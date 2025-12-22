@@ -1,6 +1,7 @@
 package com.example.socialapp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
+import com.example.socialapp.data.InteractionNote
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,6 +48,27 @@ class SocialTrackerViewModel : ViewModel() {
             currentState.copy(dailyQuota = quota.coerceIn(1, 30))
         }
     }
+
+    /**
+     * Add new interaction with quality rating and note
+     * Increments conversation counters and stores the interaction
+     * @param qualityRating Quality rating 1-4 (Poor, Good, Great, Amazing)
+     * @param noteText Optional note text
+     */
+    fun addInteraction(qualityRating: Int, noteText: String) {
+        val newInteraction = InteractionNote(
+            qualityRating = qualityRating.coerceIn(1, 4),
+            noteText = noteText.trim()
+        )
+
+        _uiState.update { currentState ->
+            currentState.copy(
+                todayCount = currentState.todayCount + 1,
+                totalCount = currentState.totalCount + 1,
+                interactions = currentState.interactions + newInteraction
+            )
+        }
+    }
 }
 
 /**
@@ -55,5 +77,6 @@ class SocialTrackerViewModel : ViewModel() {
 data class SocialTrackerUiState(
     val todayCount: Int = 0,
     val totalCount: Int = 0,
-    val dailyQuota: Int = 1 // Default quota is 1
+    val dailyQuota: Int = 1, // Default quota is 1
+    val interactions: List<InteractionNote> = emptyList()
 )

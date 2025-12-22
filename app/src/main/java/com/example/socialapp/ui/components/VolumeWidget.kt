@@ -22,9 +22,13 @@ import com.example.socialapp.ui.theme.TextSecondary
 @Composable
 fun NotesHistoryWidget(
     notesCount: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {}
 ) {
-    WidgetCard(modifier = modifier) {
+    WidgetCard(
+        modifier = modifier,
+        onClick = onClick
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center
@@ -37,7 +41,7 @@ fun NotesHistoryWidget(
             )
             Spacer(modifier = Modifier.height(Spacing.xs))
             Text(
-                text = "$notesCount conversations",
+                text = "$notesCount ${if (notesCount == 1) "note" else "notes"}",
                 style = MaterialTheme.typography.labelMedium,
                 color = TextSecondary
             )
