@@ -11,6 +11,10 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,6 +22,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.socialapp.data.SocialStats
+import com.example.socialapp.data.generateSampleData
 import com.example.socialapp.ui.components.*
 import com.example.socialapp.ui.theme.*
 
@@ -28,6 +34,7 @@ import com.example.socialapp.ui.theme.*
 @Composable
 fun SocialTrackerScreen(
     modifier: Modifier = Modifier,
+    stats: SocialStats = remember { generateSampleData() },
     todayCount: Int = 7,
     dailyGoal: Int = 7,
     lifetimeTotal: Int = 0,
@@ -35,72 +42,84 @@ fun SocialTrackerScreen(
     notesCount: Int = 251,
     currentStreak: Int = 7
 ) {
-    Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .background(BackgroundPrimary),
-        containerColor = BackgroundPrimary,
-        topBar = {
-            SocialTrackerTopBar(currentStreak = currentStreak)
-        },
-        floatingActionButton = {
-            SocialTrackerFAB()
-        },
-        floatingActionButtonPosition = FabPosition.Center
-    ) { paddingValues ->
-        Column(
+    var showActivityHistoryModal by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier.fillMaxSize()) {
+        Scaffold(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = Spacing.md)
-                .padding(bottom = 80.dp), // Extra padding for FAB
-            verticalArrangement = Arrangement.spacedBy(Spacing.md)
-        ) {
-            // Row 1: Today widget and Lifetime widget side by side
-            Row(
+                .background(BackgroundPrimary),
+            containerColor = BackgroundPrimary,
+            topBar = {
+                SocialTrackerTopBar(currentStreak = currentStreak)
+            },
+            floatingActionButton = {
+                SocialTrackerFAB()
+            },
+            floatingActionButtonPosition = FabPosition.Center
+        ) { paddingValues ->
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = Spacing.md)
+                    .padding(bottom = 80.dp), // Extra padding for FAB
+                verticalArrangement = Arrangement.spacedBy(Spacing.md)
             ) {
-                // Widget 1: Today's conversation count
-                TodayWidget(
-                    todayCount = todayCount,
-                    dailyGoal = dailyGoal,
+                // Row 1: Today widget and Lifetime widget side by side
+                Row(
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.md)
+                ) {
+                    // Widget 1: Today's conversation count
+                    TodayWidget(
+                        todayCount = todayCount,
+                        dailyGoal = dailyGoal,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+
+                    // Widget 2: Lifetime total conversations
+                    LifetimeWidget(
+                        totalCount = lifetimeTotal,
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    )
+                }
+
+                // Widget 3: Activity History (full width, same height as widgets 1 & 2)
+                ActivityHistoryWidget(
+                    activeDays = activeDays,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(220.dp),
+                    onClick = { showActivityHistoryModal = true }
                 )
 
-                // Widget 2: Lifetime total conversations
-                LifetimeWidget(
-                    totalCount = lifetimeTotal,
+                // Widget 4: Notes History (full width, half height)
+                NotesHistoryWidget(
+                    notesCount = notesCount,
                     modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .height(90.dp)
                 )
+
+                // Extra spacing at bottom for FAB
+                Spacer(modifier = Modifier.height(Spacing.lg))
             }
-
-            // Widget 3: Activity History (full width, same height as widgets 1 & 2)
-            ActivityHistoryWidget(
-                activeDays = activeDays,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(220.dp)
-            )
-
-            // Widget 4: Notes History (full width, half height)
-            NotesHistoryWidget(
-                notesCount = notesCount,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(90.dp)
-            )
-
-            // Extra spacing at bottom for FAB
-            Spacer(modifier = Modifier.height(Spacing.lg))
         }
+
+        // Activity History Expanded Modal
+        ActivityHistoryExpandedModal(
+            isVisible = showActivityHistoryModal,
+            stats = stats,
+            onDismiss = { showActivityHistoryModal = false }
+        )
     }
 }
 

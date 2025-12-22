@@ -27,9 +27,10 @@ import com.example.socialapp.ui.theme.*
 @Composable
 fun ActivityHistoryWidget(
     activeDays: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null
 ) {
-    WidgetCard(modifier = modifier) {
+    WidgetCard(modifier = modifier, onClick = onClick) {
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(Spacing.md)
