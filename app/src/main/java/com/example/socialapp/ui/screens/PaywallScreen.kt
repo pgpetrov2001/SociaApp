@@ -3,6 +3,8 @@ package com.example.socialapp.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -194,13 +196,22 @@ fun PaywallScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             // Continue button
+            val continueButtonInteraction = remember { MutableInteractionSource() }
+            val isContinuePressed by continueButtonInteraction.collectIsPressedAsState()
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
                     .clip(RoundedCornerShape(28.dp))
-                    .background(Color.White)
-                    .clickable { onNavigateNext() },
+                    .background(
+                        if (isContinuePressed) Color(0xFFE5E5E7)
+                        else Color.White
+                    )
+                    .clickable(
+                        interactionSource = continueButtonInteraction,
+                        indication = null
+                    ) { onNavigateNext() },
                 contentAlignment = Alignment.Center
             ) {
                 Text(

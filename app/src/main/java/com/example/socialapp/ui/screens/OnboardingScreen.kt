@@ -1,15 +1,16 @@
 package com.example.socialapp.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,212 +22,267 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+data class OnboardingOption(
+    val emoji: String,
+    val text: String
+)
+
 data class OnboardingStepData(
     val title: String,
-    val options: List<String>,
-    val step: Int // 1, 2, or 3
+    val options: List<OnboardingOption>,
+    val step: Int
 )
+
+private val DarkNavyBackground = Color(0xFF0D1B2A)
+private val CardBackground = Color(0xFF1B2838)
+private val BackButtonBackground = Color(0xFF1B2838)
+private val ProgressActiveColor = Color(0xFF4A90D9)
+private val ProgressInactiveColor = Color(0xFF2A3A4A)
+private val ContinueButtonDisabled = Color(0xFF3A3A3C)
+private val ContinueTextDisabled = Color(0xFF8E8E93)
 
 val onboardingSteps = listOf(
     OnboardingStepData(
         title = "What's on your mind?",
         options = listOf(
-            "Elevate mood",
-            "Reduce stress & anxiety",
-            "Improve sleep",
-            "Increase productivity"
+            OnboardingOption("😌", "Elevate mood"),
+            OnboardingOption("😰", "Reduce stress & anxiety"),
+            OnboardingOption("😴", "Improve sleep"),
+            OnboardingOption("🚀", "Increase productivity"),
+            OnboardingOption("🧘", "Find inner peace"),
+            OnboardingOption("💪", "Build confidence")
         ),
         step = 1
     ),
     OnboardingStepData(
         title = "How old are you?",
         options = listOf(
-            "Under 18",
-            "18-24",
-            "25-34",
-            "35-44"
+            OnboardingOption("👶", "Under 18"),
+            OnboardingOption("🧑", "18-24"),
+            OnboardingOption("👨", "25-34"),
+            OnboardingOption("🧔", "35-44"),
+            OnboardingOption("👴", "45-54"),
+            OnboardingOption("👵", "55+")
         ),
         step = 2
     ),
     OnboardingStepData(
-        title = "What's your main goal?",
+        title = "What's one activity that never fails to lift your mood?",
         options = listOf(
-            "Build better habits",
-            "Track my progress",
-            "Stay consistent",
-            "Achieve goals faster"
+            OnboardingOption("🎥", "Watching something funny"),
+            OnboardingOption("💞", "Spending time with loved ones"),
+            OnboardingOption("🍳🎨", "Cooking or creating something"),
+            OnboardingOption("🛏️", "Taking a nap"),
+            OnboardingOption("🌞", "Getting out in the sun"),
+            OnboardingOption("🐶", "Spending time with my pet")
         ),
         step = 3
+    ),
+    OnboardingStepData(
+        title = "How do you usually handle stress?",
+        options = listOf(
+            OnboardingOption("🎧", "Listen to music"),
+            OnboardingOption("🏃", "Exercise or go for a walk"),
+            OnboardingOption("📱", "Scroll through social media"),
+            OnboardingOption("🗣️", "Talk to someone"),
+            OnboardingOption("🍫", "Eat comfort food"),
+            OnboardingOption("😤", "I don't handle it well")
+        ),
+        step = 4
+    ),
+    OnboardingStepData(
+        title = "What time of day do you feel most energized?",
+        options = listOf(
+            OnboardingOption("🌅", "Early morning"),
+            OnboardingOption("☀️", "Late morning"),
+            OnboardingOption("🌤️", "Afternoon"),
+            OnboardingOption("🌆", "Evening"),
+            OnboardingOption("🌙", "Late night"),
+            OnboardingOption("🤷", "It varies")
+        ),
+        step = 5
+    ),
+    OnboardingStepData(
+        title = "What's your main goal with this app?",
+        options = listOf(
+            OnboardingOption("📈", "Track my progress"),
+            OnboardingOption("🎯", "Build better habits"),
+            OnboardingOption("⚡", "Stay consistent"),
+            OnboardingOption("🏆", "Achieve goals faster"),
+            OnboardingOption("🧠", "Understand myself better"),
+            OnboardingOption("✨", "Just exploring")
+        ),
+        step = 6
     )
 )
 
 @Composable
 fun OnboardingScreen(
-    step: Int, // 1, 2, or 3
+    step: Int, // 1 to 6
     onNavigateNext: () -> Unit,
     onNavigateBack: () -> Unit,
     onSkip: () -> Unit
 ) {
     val stepData = onboardingSteps[step - 1]
-    var selectedOptions by remember { mutableStateOf(setOf<String>()) }
+    var selectedOption by remember { mutableStateOf<String?>(null) }
+    val totalSteps = 6
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A0A0A))
-            .padding(24.dp)
+            .background(DarkNavyBackground)
     ) {
-        // Skip button
-        Text(
-            text = "Skip",
-            color = Color(0xFF8E8E93),
-            fontSize = 17.sp,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .clickable { onSkip() }
-                .padding(8.dp)
-        )
-
-        // Back button (only for steps 2 and 3)
-        if (step > 1) {
-            IconButton(
-                onClick = onNavigateBack,
-                modifier = Modifier.align(Alignment.TopStart)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White
-                )
-            }
-        }
-
-        // Main content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(top = 80.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .statusBarsPadding()
+                .padding(horizontal = 24.dp)
         ) {
-            // Title
-            Text(
-                text = stepData.title,
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 32.dp)
-            )
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Subtitle
-            Text(
-                text = "Your answers will help shape the app\naround your needs.",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color(0xFF8E8E93),
-                textAlign = TextAlign.Center,
-                lineHeight = 22.sp
-            )
+            // Top bar with back button and progress
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Back button
+                Box(
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(BackButtonBackground)
+                        .clickable { onNavigateBack() },
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Back",
+                        tint = Color.White,
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                // Progress bar
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    repeat(totalSteps) { index ->
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(4.dp)
+                                .clip(RoundedCornerShape(2.dp))
+                                .background(
+                                    if (index < step) ProgressActiveColor
+                                    else ProgressInactiveColor
+                                )
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            // Options
+            // Question title
+            Text(
+                text = stepData.title,
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                lineHeight = 36.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp)
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+            // Options list - scrollable
             Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier
+                    .weight(1f)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 stepData.options.forEach { option ->
-                    val isSelected = option in selectedOptions
+                    val isSelected = selectedOption == option.text
 
-                    Box(
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(60.dp)
-                            .clip(RoundedCornerShape(30.dp))
+                            .clip(RoundedCornerShape(16.dp))
                             .background(
-                                if (isSelected) Color(0xFF2C2C2E)
-                                else Color(0xFF1C1C1E)
-                            )
-                            .border(
-                                width = if (isSelected) 2.dp else 1.dp,
-                                color = if (isSelected) Color(0xFF3A3A3C)
-                                else Color(0xFF2C2C2E),
-                                shape = RoundedCornerShape(30.dp)
+                                if (isSelected) CardBackground.copy(alpha = 0.9f)
+                                else CardBackground
                             )
                             .clickable {
-                                selectedOptions = if (isSelected) {
-                                    selectedOptions - option
-                                } else {
-                                    selectedOptions + option
-                                }
+                                selectedOption = option.text
                             }
-                            .padding(horizontal = 24.dp),
-                        contentAlignment = Alignment.Center
+                            .padding(horizontal = 20.dp, vertical = 18.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = option,
+                            text = option.emoji,
+                            fontSize = 24.sp
+                        )
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Text(
+                            text = option.text,
                             fontSize = 17.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Spacer(modifier = Modifier.weight(1f))
-
-            // Disclaimer text
-            Text(
-                text = "Your selections won't limit access to any\nfeatures.",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color(0xFF6E6E73),
-                textAlign = TextAlign.Center,
-                lineHeight = 20.sp,
-                modifier = Modifier.padding(bottom = 20.dp)
-            )
-
             // Continue button
+            val buttonInteractionSource = remember { MutableInteractionSource() }
+            val isButtonPressed by buttonInteractionSource.collectIsPressedAsState()
+            val isEnabled = selectedOption != null
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(bottom = 24.dp)
                     .height(56.dp)
                     .clip(RoundedCornerShape(28.dp))
-                    .background(Color(0xFFAEAEB2))
-                    .clickable { onNavigateNext() },
+                    .background(
+                        when {
+                            !isEnabled -> ContinueButtonDisabled
+                            isButtonPressed -> Color(0xFFD0D0D0)
+                            else -> Color(0xFFAEAEB2)
+                        }
+                    )
+                    .then(
+                        if (isEnabled) {
+                            Modifier.clickable(
+                                interactionSource = buttonInteractionSource,
+                                indication = null
+                            ) { onNavigateNext() }
+                        } else {
+                            Modifier
+                        }
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = "Continue",
                     fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
+                    color = if (isEnabled) Color.Black else ContinueTextDisabled
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            // Progress dots
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                repeat(3) { index ->
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(
-                                color = if (index == step - 1) Color.White
-                                else Color(0xFF3A3A3C),
-                                shape = CircleShape
-                            )
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.navigationBarsPadding())
         }
     }
 }

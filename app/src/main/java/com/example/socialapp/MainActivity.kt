@@ -38,7 +38,7 @@ fun AppNavigation() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A0A0A))
+            .background(Color(0xFF0D1B2A))
     ) {
         AnimatedContent(
             targetState = currentScreen,
@@ -93,20 +93,36 @@ fun AppNavigation() {
                     onNavigateNext = {
                         previousScreen = currentScreen
                         currentScreen = when (step) {
-                            1 -> Screen.Onboarding(2)
-                            2 -> Screen.Onboarding(3)
-                            else -> Screen.Login
+                            in 1..5 -> Screen.Onboarding(step + 1)
+                            else -> Screen.Loading
                         }
                     },
                     onNavigateBack = {
                         previousScreen = currentScreen
                         currentScreen = when (step) {
-                            2 -> Screen.Onboarding(1)
-                            3 -> Screen.Onboarding(2)
-                            else -> Screen.Onboarding(1)
+                            1 -> Screen.Splash
+                            else -> Screen.Onboarding(step - 1)
                         }
                     },
                     onSkip = {
+                        previousScreen = currentScreen
+                        currentScreen = Screen.Loading
+                    }
+                )
+            }
+
+            is Screen.Loading -> {
+                LoadingScreen(
+                    onNavigateNext = {
+                        previousScreen = currentScreen
+                        currentScreen = Screen.Results
+                    }
+                )
+            }
+
+            is Screen.Results -> {
+                ResultsScreen(
+                    onNavigateNext = {
                         previousScreen = currentScreen
                         currentScreen = Screen.Login
                     }
@@ -147,6 +163,8 @@ private fun isForwardNavigation(previous: Screen?, current: Screen): Boolean {
     val screenOrder = listOf(
         Screen.Splash::class,
         Screen.Onboarding::class,
+        Screen.Loading::class,
+        Screen.Results::class,
         Screen.Login::class,
         Screen.Paywall::class,
         Screen.Main::class
