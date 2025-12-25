@@ -27,16 +27,16 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// Colors
-private val LightBackground = Color(0xFFF0F0FF)
-private val PrimaryBlue = Color(0xFF4A4AE8)
-private val AccentBlue = Color(0xFF6366F1)
-private val DarkText = Color(0xFF1F2937)
-private val GrayText = Color(0xFF6B7280)
-private val FeatureIconBg = Color(0xFFE8E8FF)
-private val CardBackground = Color.White
-private val SelectedCardBorder = Color(0xFF6366F1)
-private val StarColor = Color(0xFFFFD700)
+// Colors - matching the dark theme from OnboardingScreen
+private val DarkNavyBackground = Color(0xFF0D1B2A)
+private val CardBackground = Color(0xFF1B2838)
+private val SelectedCardBackground = Color(0xFF1E3A5F)
+private val AccentBlue = Color(0xFF4A90D9)
+private val LightText = Color.White
+private val GrayText = Color(0xFF8E9AAF)
+private val FeatureIconBg = Color(0xFF1B2838)
+private val SelectedBorderColor = Color(0xFF4A90D9)
+private val GreenAccent = Color(0xFF10B981)
 
 @Composable
 fun PaywallScreen(
@@ -48,7 +48,7 @@ fun PaywallScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(LightBackground)
+            .background(DarkNavyBackground)
     ) {
         Column(
             modifier = Modifier
@@ -63,21 +63,21 @@ fun PaywallScreen(
             Text(
                 text = buildAnnotatedString {
                     append("Hey ")
-                    withStyle(style = SpanStyle(color = PrimaryBlue)) {
+                    withStyle(style = SpanStyle(color = AccentBlue)) {
                         append("Friend")
                     }
                     append(", unlock ")
-                    withStyle(style = SpanStyle(color = PrimaryBlue)) {
+                    withStyle(style = SpanStyle(color = AccentBlue)) {
                         append("Social")
                     }
-                    withStyle(style = SpanStyle(color = AccentBlue)) {
+                    withStyle(style = SpanStyle(color = GreenAccent)) {
                         append("App")
                     }
                     append(" to reach your goals faster.")
                 },
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkText,
+                color = LightText,
                 textAlign = TextAlign.Center,
                 lineHeight = 36.sp,
                 modifier = Modifier.fillMaxWidth()
@@ -96,7 +96,7 @@ fun PaywallScreen(
                 emoji = "✅",
                 text = buildAnnotatedString {
                     append("Save ")
-                    withStyle(style = SpanStyle(color = PrimaryBlue, fontWeight = FontWeight.Bold)) {
+                    withStyle(style = SpanStyle(color = AccentBlue, fontWeight = FontWeight.Bold)) {
                         append("\$120")
                     }
                     append(" Yearly With Premium!")
@@ -113,7 +113,7 @@ fun PaywallScreen(
                 badgeText = "BEST OFFER",
                 showBadge = true,
                 tagText = "FREE",
-                tagColor = PrimaryBlue,
+                tagColor = AccentBlue,
                 originalPrice = "9.99 USD",
                 priceLabel = "per week",
                 isSelected = selectedPlan == 0,
@@ -128,7 +128,7 @@ fun PaywallScreen(
                 subtitle = "3 days free trial",
                 showBadge = false,
                 tagText = "Save 90%",
-                tagColor = Color(0xFF10B981),
+                tagColor = GreenAccent,
                 originalPrice = null,
                 price = "1.99 USD",
                 priceLabel = "per week",
@@ -163,7 +163,7 @@ fun PaywallScreen(
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
-                    tint = GrayText,
+                    tint = AccentBlue,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -184,10 +184,10 @@ fun PaywallScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(28.dp))
                     .background(
-                        if (isButtonPressed) PrimaryBlue.copy(alpha = 0.8f)
-                        else PrimaryBlue
+                        if (isButtonPressed) Color(0xFFD0D0D0)
+                        else Color(0xFFAEAEB2)
                     )
                     .clickable(
                         interactionSource = buttonInteraction,
@@ -197,9 +197,9 @@ fun PaywallScreen(
             ) {
                 Text(
                     text = "Start Free Trial",
-                    fontSize = 18.sp,
+                    fontSize = 17.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.White
+                    color = Color.Black
                 )
             }
 
@@ -274,7 +274,7 @@ private fun FeatureRow(
             modifier = Modifier
                 .size(48.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(FeatureIconBg),
+                .background(CardBackground),
             contentAlignment = Alignment.Center
         ) {
             Text(
@@ -289,7 +289,7 @@ private fun FeatureRow(
             text = text,
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium,
-            color = DarkText
+            color = LightText
         )
     }
 }
@@ -315,12 +315,18 @@ private fun PricingCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = if (showBadge) 12.dp else 0.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(CardBackground)
-                .border(
-                    width = if (isSelected) 2.dp else 1.dp,
-                    color = if (isSelected) SelectedCardBorder else Color(0xFFE5E7EB),
-                    shape = RoundedCornerShape(16.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .then(
+                    if (isSelected) {
+                        Modifier.border(
+                            width = 2.dp,
+                            color = SelectedBorderColor,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    } else Modifier
+                )
+                .background(
+                    if (isSelected) SelectedCardBackground else CardBackground
                 )
                 .clickable { onClick() }
                 .padding(16.dp)
@@ -335,7 +341,7 @@ private fun PricingCard(
                         text = title,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DarkText
+                        color = LightText
                     )
                     Text(
                         text = subtitle,
@@ -352,7 +358,7 @@ private fun PricingCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(tagColor.copy(alpha = 0.15f))
+                            .background(tagColor.copy(alpha = 0.2f))
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
@@ -380,7 +386,7 @@ private fun PricingCard(
                                 text = price,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = DarkText
+                                color = LightText
                             )
                         }
                         Text(
@@ -400,7 +406,7 @@ private fun PricingCard(
                     .align(Alignment.TopEnd)
                     .padding(end = 16.dp)
                     .clip(RoundedCornerShape(6.dp))
-                    .background(PrimaryBlue)
+                    .background(AccentBlue)
                     .padding(horizontal = 12.dp, vertical = 6.dp)
             ) {
                 Text(

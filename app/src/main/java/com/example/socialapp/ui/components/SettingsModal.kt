@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.socialapp.ui.theme.*
 import kotlin.math.roundToInt
 
@@ -36,6 +37,7 @@ fun SettingsModal(
     currentQuota: Int,
     onQuotaChange: (Int) -> Unit,
     onDismiss: () -> Unit,
+    onViewPlanClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     AnimatedVisibility(
@@ -73,7 +75,8 @@ fun SettingsModal(
                 SettingsModalContent(
                     currentQuota = currentQuota,
                     onQuotaChange = onQuotaChange,
-                    onDismiss = onDismiss
+                    onDismiss = onDismiss,
+                    onViewPlanClick = onViewPlanClick
                 )
             }
         }
@@ -84,7 +87,8 @@ fun SettingsModal(
 private fun SettingsModalContent(
     currentQuota: Int,
     onQuotaChange: (Int) -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    onViewPlanClick: () -> Unit
 ) {
     var sliderPosition by remember(currentQuota) { mutableFloatStateOf(currentQuota.toFloat()) }
 
@@ -186,6 +190,46 @@ private fun SettingsModalContent(
                         color = TextMuted
                     )
                 }
+            }
+
+            // Divider
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(TextMuted.copy(alpha = 0.2f))
+            )
+
+            // View Plan Row - Clean minimal design
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onViewPlanClick() }
+                    .padding(vertical = Spacing.sm),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.md),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "👑",
+                        fontSize = 24.sp
+                    )
+                    Text(
+                        text = "View Plan",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Text(
+                    text = "›",
+                    fontSize = 22.sp,
+                    color = TextMuted,
+                    fontWeight = FontWeight.Light
+                )
             }
         }
     }

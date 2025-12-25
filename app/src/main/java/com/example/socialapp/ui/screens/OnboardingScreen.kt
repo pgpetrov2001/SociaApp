@@ -46,68 +46,68 @@ private val SelectedCardBackground = Color(0xFF1E3A5F)
 
 val onboardingSteps = listOf(
     OnboardingStepData(
-        title = "What's on your mind?",
+        title = "What's your biggest challenge right now?",
         options = listOf(
-            OnboardingOption("😌", "Elevate mood"),
-            OnboardingOption("😰", "Reduce stress & anxiety"),
-            OnboardingOption("😴", "Improve sleep"),
-            OnboardingOption("🚀", "Increase productivity"),
-            OnboardingOption("💪", "Build confidence")
+            OnboardingOption("😰", "Fear of rejection"),
+            OnboardingOption("🤐", "Not knowing what to say"),
+            OnboardingOption("😶", "Too shy to approach"),
+            OnboardingOption("💔", "Getting ghosted or flaked on"),
+            OnboardingOption("🤷", "Just can't meet new people")
         ),
         step = 1
     ),
     OnboardingStepData(
         title = "How old are you?",
         options = listOf(
-            OnboardingOption("👶", "Under 18"),
-            OnboardingOption("🧑", "18-24"),
-            OnboardingOption("👨", "25-34"),
-            OnboardingOption("🧔", "35-54"),
-            OnboardingOption("👵", "55+")
+            OnboardingOption("🧑", "18-21"),
+            OnboardingOption("👨", "22-27"),
+            OnboardingOption("🧔", "28-35"),
+            OnboardingOption("👔", "36-45"),
+            OnboardingOption("🎩", "46+")
         ),
         step = 2
     ),
     OnboardingStepData(
-        title = "What's one activity that never fails to lift your mood?",
+        title = "How often do you approach someone you're interested in?",
         options = listOf(
-            OnboardingOption("🎥", "Watching something funny"),
-            OnboardingOption("💞", "Time with loved ones"),
-            OnboardingOption("🎨", "Creating something"),
-            OnboardingOption("🌞", "Getting out in the sun"),
-            OnboardingOption("🐶", "Time with my pet")
+            OnboardingOption("🚫", "Never, I'm too nervous"),
+            OnboardingOption("😬", "Rarely, only if it's easy"),
+            OnboardingOption("🙂", "Sometimes when I feel confident"),
+            OnboardingOption("💪", "Often, but want to improve"),
+            OnboardingOption("🔥", "Regularly, need better results")
         ),
         step = 3
     ),
     OnboardingStepData(
-        title = "How do you usually handle stress?",
+        title = "What holds you back the most?",
         options = listOf(
-            OnboardingOption("🎧", "Listen to music"),
-            OnboardingOption("🏃", "Exercise or walk"),
-            OnboardingOption("🗣️", "Talk to someone"),
-            OnboardingOption("🍫", "Eat comfort food"),
-            OnboardingOption("😤", "I don't handle it well")
+            OnboardingOption("😓", "Fear of looking awkward"),
+            OnboardingOption("💭", "Overthinking what to say"),
+            OnboardingOption("😔", "Low self-confidence"),
+            OnboardingOption("🏃", "I freeze up in the moment"),
+            OnboardingOption("❌", "Past rejections hurt")
         ),
         step = 4
     ),
     OnboardingStepData(
-        title = "What time of day do you feel most energized?",
+        title = "What's your main goal?",
         options = listOf(
-            OnboardingOption("🌅", "Morning"),
-            OnboardingOption("🌤️", "Afternoon"),
-            OnboardingOption("🌆", "Evening"),
-            OnboardingOption("🌙", "Late night"),
-            OnboardingOption("🤷", "It varies")
+            OnboardingOption("💬", "Start more conversations"),
+            OnboardingOption("💪", "Build unshakeable confidence"),
+            OnboardingOption("❤️", "Get more dates"),
+            OnboardingOption("💑", "Find a girlfriend"),
+            OnboardingOption("🌟", "Become more social overall")
         ),
         step = 5
     ),
     OnboardingStepData(
-        title = "What's your main goal with this app?",
+        title = "How can we help you best?",
         options = listOf(
-            OnboardingOption("📈", "Track my progress"),
-            OnboardingOption("🎯", "Build better habits"),
-            OnboardingOption("🏆", "Achieve goals faster"),
-            OnboardingOption("🧠", "Understand myself better"),
-            OnboardingOption("✨", "Just exploring")
+            OnboardingOption("⏰", "Daily motivation & reminders"),
+            OnboardingOption("💡", "Conversation tips & openers"),
+            OnboardingOption("📊", "Track my progress"),
+            OnboardingOption("🎯", "Daily approach challenges"),
+            OnboardingOption("🧠", "Mindset & confidence coaching")
         ),
         step = 6
     )

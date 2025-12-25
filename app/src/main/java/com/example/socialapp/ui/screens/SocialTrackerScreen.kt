@@ -59,6 +59,7 @@ fun SocialTrackerScreen(
     var showSettingsModal by remember { mutableStateOf(false) }
     var showAddInteractionModal by remember { mutableStateOf(false) }
     var showNotesHistoryModal by remember { mutableStateOf(false) }
+    var showSubscriptionModal by remember { mutableStateOf(false) }
 
     // Snackbar state
     val snackbarHostState = remember { SnackbarHostState() }
@@ -66,7 +67,7 @@ fun SocialTrackerScreen(
 
     // Determine if any modal is visible
     val isAnyModalVisible = showActivityHistoryModal || showSettingsModal ||
-        showAddInteractionModal || showNotesHistoryModal
+        showAddInteractionModal || showNotesHistoryModal || showSubscriptionModal
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -160,7 +161,28 @@ fun SocialTrackerScreen(
             isVisible = showSettingsModal,
             currentQuota = uiState.dailyQuota,
             onQuotaChange = { newQuota -> viewModel.updateDailyQuota(newQuota) },
-            onDismiss = { showSettingsModal = false }
+            onDismiss = { showSettingsModal = false },
+            onViewPlanClick = {
+                showSettingsModal = false
+                showSubscriptionModal = true
+            }
+        )
+
+        // Subscription Modal
+        SubscriptionModal(
+            isVisible = showSubscriptionModal,
+            currentPlan = "Weekly",
+            planPrice = "9.99 USD/week",
+            onDismiss = { showSubscriptionModal = false },
+            onCancelSubscription = { reason, comment ->
+                // Handle cancellation - in a real app, this would call an API
+                scope.launch {
+                    snackbarHostState.showSnackbar(
+                        message = "Subscription cancelled. We're sorry to see you go!",
+                        duration = SnackbarDuration.Short
+                    )
+                }
+            }
         )
 
         // Add Interaction Modal
