@@ -142,9 +142,18 @@ fun AppNavigation() {
                 PaywallScreen(
                     onNavigateNext = {
                         previousScreen = currentScreen
-                        currentScreen = Screen.Main
+                        currentScreen = Screen.Rating
                     },
                     onClose = {
+                        previousScreen = currentScreen
+                        currentScreen = Screen.Rating
+                    }
+                )
+            }
+
+            is Screen.Rating -> {
+                RatingScreen(
+                    onNavigateNext = {
                         previousScreen = currentScreen
                         currentScreen = Screen.Main
                     }
@@ -167,6 +176,7 @@ private fun isForwardNavigation(previous: Screen?, current: Screen): Boolean {
         Screen.Results::class,
         Screen.Login::class,
         Screen.Paywall::class,
+        Screen.Rating::class,
         Screen.Main::class
     )
 
