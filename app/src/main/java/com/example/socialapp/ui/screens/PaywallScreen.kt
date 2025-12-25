@@ -7,12 +7,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -20,278 +18,313 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-data class PricingTier(
-    val name: String,
-    val price: String,
-    val originalPrice: String? = null,
-    val hasBadge: Boolean = false,
-    val badgeText: String = "",
-    val hasFreeTrial: Boolean = true
-)
+// Colors
+private val LightBackground = Color(0xFFF0F0FF)
+private val PrimaryBlue = Color(0xFF4A4AE8)
+private val AccentBlue = Color(0xFF6366F1)
+private val DarkText = Color(0xFF1F2937)
+private val GrayText = Color(0xFF6B7280)
+private val FeatureIconBg = Color(0xFFE8E8FF)
+private val CardBackground = Color.White
+private val SelectedCardBorder = Color(0xFF6366F1)
+private val StarColor = Color(0xFFFFD700)
 
 @Composable
 fun PaywallScreen(
     onNavigateNext: () -> Unit,
     onClose: () -> Unit
 ) {
-    var selectedTier by remember { mutableStateOf(1) } // 0, 1, or 2
-    var isMonthly by remember { mutableStateOf(true) }
-
-    val pricingTiers = listOf(
-        PricingTier(
-            name = "Premium Monthly",
-            price = "$19.99",
-            hasFreeTrial = true
-        ),
-        PricingTier(
-            name = "Premium+ Monthly",
-            price = "$29.99",
-            originalPrice = "$59.99",
-            hasBadge = true,
-            badgeText = "Early Bird Discount",
-            hasFreeTrial = true
-        ),
-        PricingTier(
-            name = "Pro Monthly",
-            price = "$79.99",
-            originalPrice = "$129.99",
-            hasFreeTrial = true
-        )
-    )
+    var selectedPlan by remember { mutableStateOf(0) } // 0 = weekly, 1 = yearly
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF0A0A0A))
+            .background(LightBackground)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(24.dp)
+                .statusBarsPadding()
+                .padding(horizontal = 24.dp)
         ) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Choose your plan",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Close",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clickable { onClose() }
-                )
-            }
-
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Monthly/Yearly toggle
-            Row(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF1C1C1E))
-                    .padding(4.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                // Monthly
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            if (isMonthly) Color.White
-                            else Color.Transparent
-                        )
-                        .clickable { isMonthly = true }
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Monthly",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (isMonthly) Color.Black else Color(0xFF8E8E93)
-                    )
-                }
-
-                // Yearly
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(
-                            if (!isMonthly) Color.White
-                            else Color.Transparent
-                        )
-                        .clickable { isMonthly = false }
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Yearly",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = if (!isMonthly) Color.Black else Color(0xFF8E8E93)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Pricing tiers
-            pricingTiers.forEachIndexed { index, tier ->
-                PricingTierCard(
-                    tier = tier,
-                    isSelected = index == selectedTier,
-                    onClick = {
-                        selectedTier = index
-                        onNavigateNext()
+            // Title
+            Text(
+                text = buildAnnotatedString {
+                    append("Hey ")
+                    withStyle(style = SpanStyle(color = PrimaryBlue)) {
+                        append("Friend")
                     }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
+                    append(", unlock ")
+                    withStyle(style = SpanStyle(color = PrimaryBlue)) {
+                        append("Social")
+                    }
+                    withStyle(style = SpanStyle(color = AccentBlue)) {
+                        append("App")
+                    }
+                    append(" to reach your goals faster.")
+                },
+                fontSize = 28.sp,
+                fontWeight = FontWeight.Bold,
+                color = DarkText,
+                textAlign = TextAlign.Center,
+                lineHeight = 36.sp,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // What do I get section
-            Text(
-                text = "What do I get?",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.padding(bottom = 16.dp)
+            // Features
+            FeatureRow(emoji = "📊", text = "Track Your Progress & See Insights")
+            Spacer(modifier = Modifier.height(12.dp))
+            FeatureRow(emoji = "🎯", text = "Set Personal Goals & Achieve Them")
+            Spacer(modifier = Modifier.height(12.dp))
+            FeatureRow(emoji = "🌸", text = "Access Your Complete Wellness Journey")
+            Spacer(modifier = Modifier.height(12.dp))
+            FeatureRow(
+                emoji = "✅",
+                text = buildAnnotatedString {
+                    append("Save ")
+                    withStyle(style = SpanStyle(color = PrimaryBlue, fontWeight = FontWeight.Bold)) {
+                        append("\$120")
+                    }
+                    append(" Yearly With Premium!")
+                }
             )
 
-            // Features
-            FeatureItem(
-                icon = "📈",
-                title = "Trending Insights",
-                description = "Uncover data-backed betting opportunities in a curated feed."
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Pricing Cards
+            // Weekly Plan
+            PricingCard(
+                title = "Weekly access",
+                subtitle = "3 days free trial",
+                badgeText = "BEST OFFER",
+                showBadge = true,
+                tagText = "FREE",
+                tagColor = PrimaryBlue,
+                originalPrice = "9.99 USD",
+                priceLabel = "per week",
+                isSelected = selectedPlan == 0,
+                onClick = { selectedPlan = 0 }
             )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Yearly Plan
+            PricingCard(
+                title = "Yearly access",
+                subtitle = "3 days free trial",
+                showBadge = false,
+                tagText = "Save 90%",
+                tagColor = Color(0xFF10B981),
+                originalPrice = null,
+                price = "1.99 USD",
+                priceLabel = "per week",
+                isSelected = selectedPlan == 1,
+                onClick = { selectedPlan = 1 }
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Star Rating
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                repeat(5) {
+                    Text(
+                        text = "⭐",
+                        fontSize = 24.sp,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // No Payment Due text
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = null,
+                    tint = GrayText,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "No Payment Due Now. Cancel Anytime",
+                    fontSize = 14.sp,
+                    color = GrayText
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            FeatureItem(
-                icon = "💡",
-                title = "Thousands of Props & Games",
-                description = "All the props, teams and leagues refreshed each day."
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Continue button
-            val continueButtonInteraction = remember { MutableInteractionSource() }
-            val isContinuePressed by continueButtonInteraction.collectIsPressedAsState()
+            // Start Free Trial Button
+            val buttonInteraction = remember { MutableInteractionSource() }
+            val isButtonPressed by buttonInteraction.collectIsPressedAsState()
 
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
-                    .clip(RoundedCornerShape(28.dp))
+                    .clip(RoundedCornerShape(16.dp))
                     .background(
-                        if (isContinuePressed) Color(0xFFE5E5E7)
-                        else Color.White
+                        if (isButtonPressed) PrimaryBlue.copy(alpha = 0.8f)
+                        else PrimaryBlue
                     )
                     .clickable(
-                        interactionSource = continueButtonInteraction,
+                        interactionSource = buttonInteraction,
                         indication = null
                     ) { onNavigateNext() },
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Continue",
-                    fontSize = 17.sp,
+                    text = "Start Free Trial",
+                    fontSize = 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = Color.Black
+                    color = Color.White
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-            // Promo code link
+            // Trial info text
             Text(
-                text = "I HAVE A PROMO CODE",
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF8E8E93),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { /* Handle promo code */ },
-                textAlign = TextAlign.Center
+                text = "3 days free trial then ${if (selectedPlan == 0) "9.99 USD/week" else "99.99 USD/year"}",
+                fontSize = 13.sp,
+                color = GrayText,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Terms links
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Text(
+                    text = "Terms of use",
+                    fontSize = 12.sp,
+                    color = GrayText,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { }
+                )
+                Text(
+                    text = "Restore purchase",
+                    fontSize = 12.sp,
+                    color = GrayText,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { }
+                )
+                Text(
+                    text = "Privacy Policy",
+                    fontSize = 12.sp,
+                    color = GrayText,
+                    textDecoration = TextDecoration.Underline,
+                    modifier = Modifier.clickable { }
+                )
+            }
+
             Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.navigationBarsPadding())
         }
     }
 }
 
 @Composable
-private fun PricingTierCard(
-    tier: PricingTier,
+private fun FeatureRow(
+    emoji: String,
+    text: String
+) {
+    FeatureRow(
+        emoji = emoji,
+        text = buildAnnotatedString { append(text) }
+    )
+}
+
+@Composable
+private fun FeatureRow(
+    emoji: String,
+    text: androidx.compose.ui.text.AnnotatedString
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(FeatureIconBg),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = emoji,
+                fontSize = 24.sp
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Text(
+            text = text,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = DarkText
+        )
+    }
+}
+
+@Composable
+private fun PricingCard(
+    title: String,
+    subtitle: String,
+    showBadge: Boolean = false,
+    badgeText: String = "",
+    tagText: String,
+    tagColor: Color,
+    originalPrice: String? = null,
+    price: String? = null,
+    priceLabel: String,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color(0xFF1C1C1E))
-            .border(
-                width = if (isSelected) 2.dp else 0.dp,
-                color = if (isSelected) Color.White else Color.Transparent,
-                shape = RoundedCornerShape(16.dp)
-            )
-            .clickable { onClick() }
-            .padding(20.dp)
+        modifier = Modifier.fillMaxWidth()
     ) {
-        // Checkmark for selected tier
-        if (isSelected) {
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .background(Color(0xFF00D9CC), shape = CircleShape)
-                    .align(Alignment.TopStart),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Check,
-                    contentDescription = "Selected",
-                    tint = Color.Black,
-                    modifier = Modifier.size(16.dp)
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = if (showBadge) 12.dp else 0.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(CardBackground)
+                .border(
+                    width = if (isSelected) 2.dp else 1.dp,
+                    color = if (isSelected) SelectedCardBorder else Color(0xFFE5E7EB),
+                    shape = RoundedCornerShape(16.dp)
                 )
-            }
-        }
-
-        Column(
-            modifier = Modifier.fillMaxWidth()
+                .clickable { onClick() }
+                .padding(16.dp)
         ) {
-            // Free trial badge
-            if (tier.hasFreeTrial) {
-                Text(
-                    text = "1-week trial",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF00D9CC),
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-            }
-
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -299,101 +332,84 @@ private fun PricingTierCard(
             ) {
                 Column {
                     Text(
-                        text = tier.name.substringBefore(" Monthly"),
+                        text = title,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.White
+                        color = DarkText
                     )
-
                     Text(
-                        text = "Monthly",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-
-                    Text(
-                        text = "Monthly billing",
+                        text = subtitle,
                         fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = Color(0xFF8E8E93),
-                        modifier = Modifier.padding(top = 4.dp)
+                        color = GrayText
                     )
                 }
 
-                Column(
-                    horizontalAlignment = Alignment.End
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = tier.price,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-
-                    if (tier.originalPrice != null) {
+                    // Tag (FREE or Save 90%)
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(tagColor.copy(alpha = 0.15f))
+                            .padding(horizontal = 10.dp, vertical = 4.dp)
+                    ) {
                         Text(
-                            text = tier.originalPrice,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Normal,
-                            color = Color(0xFF8E8E93),
-                            textDecoration = TextDecoration.LineThrough
+                            text = tagText,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = tagColor
+                        )
+                    }
+
+                    // Price
+                    Column(
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        if (originalPrice != null) {
+                            Text(
+                                text = originalPrice,
+                                fontSize = 14.sp,
+                                color = GrayText,
+                                textDecoration = TextDecoration.LineThrough
+                            )
+                        }
+                        if (price != null) {
+                            Text(
+                                text = price,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = DarkText
+                            )
+                        }
+                        Text(
+                            text = priceLabel,
+                            fontSize = 12.sp,
+                            color = GrayText
                         )
                     }
                 }
             }
-
-            // Early Bird Discount badge
-            if (tier.hasBadge) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFF00D9CC))
-                        .padding(horizontal = 12.dp, vertical = 6.dp)
-                ) {
-                    Text(
-                        text = tier.badgeText,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                }
-            }
         }
-    }
-}
 
-@Composable
-private fun FeatureItem(
-    icon: String,
-    title: String,
-    description: String
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        Text(
-            text = icon,
-            fontSize = 24.sp
-        )
-
-        Column {
-            Text(
-                text = title,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-
-            Text(
-                text = description,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Normal,
-                color = Color(0xFF8E8E93),
-                lineHeight = 20.sp,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+        // Badge (BEST OFFER)
+        if (showBadge) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(end = 16.dp)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(PrimaryBlue)
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                Text(
+                    text = badgeText,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            }
         }
     }
 }
