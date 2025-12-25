@@ -1,6 +1,7 @@
 package com.example.socialapp.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -37,9 +38,11 @@ private val DarkNavyBackground = Color(0xFF0D1B2A)
 private val CardBackground = Color(0xFF1B2838)
 private val BackButtonBackground = Color(0xFF1B2838)
 private val ProgressActiveColor = Color(0xFF4A90D9)
-private val ProgressInactiveColor = Color(0xFF2A3A4A)
+private val ProgressInactiveColor = Color(0xFF4A5568)
 private val ContinueButtonDisabled = Color(0xFF3A3A3C)
 private val ContinueTextDisabled = Color(0xFF8E8E93)
+private val SelectedBorderColor = Color(0xFF4A90D9)
+private val SelectedCardBackground = Color(0xFF1E3A5F)
 
 val onboardingSteps = listOf(
     OnboardingStepData(
@@ -49,7 +52,6 @@ val onboardingSteps = listOf(
             OnboardingOption("😰", "Reduce stress & anxiety"),
             OnboardingOption("😴", "Improve sleep"),
             OnboardingOption("🚀", "Increase productivity"),
-            OnboardingOption("🧘", "Find inner peace"),
             OnboardingOption("💪", "Build confidence")
         ),
         step = 1
@@ -60,8 +62,7 @@ val onboardingSteps = listOf(
             OnboardingOption("👶", "Under 18"),
             OnboardingOption("🧑", "18-24"),
             OnboardingOption("👨", "25-34"),
-            OnboardingOption("🧔", "35-44"),
-            OnboardingOption("👴", "45-54"),
+            OnboardingOption("🧔", "35-54"),
             OnboardingOption("👵", "55+")
         ),
         step = 2
@@ -70,11 +71,10 @@ val onboardingSteps = listOf(
         title = "What's one activity that never fails to lift your mood?",
         options = listOf(
             OnboardingOption("🎥", "Watching something funny"),
-            OnboardingOption("💞", "Spending time with loved ones"),
-            OnboardingOption("🍳🎨", "Cooking or creating something"),
-            OnboardingOption("🛏️", "Taking a nap"),
+            OnboardingOption("💞", "Time with loved ones"),
+            OnboardingOption("🎨", "Creating something"),
             OnboardingOption("🌞", "Getting out in the sun"),
-            OnboardingOption("🐶", "Spending time with my pet")
+            OnboardingOption("🐶", "Time with my pet")
         ),
         step = 3
     ),
@@ -82,8 +82,7 @@ val onboardingSteps = listOf(
         title = "How do you usually handle stress?",
         options = listOf(
             OnboardingOption("🎧", "Listen to music"),
-            OnboardingOption("🏃", "Exercise or go for a walk"),
-            OnboardingOption("📱", "Scroll through social media"),
+            OnboardingOption("🏃", "Exercise or walk"),
             OnboardingOption("🗣️", "Talk to someone"),
             OnboardingOption("🍫", "Eat comfort food"),
             OnboardingOption("😤", "I don't handle it well")
@@ -93,8 +92,7 @@ val onboardingSteps = listOf(
     OnboardingStepData(
         title = "What time of day do you feel most energized?",
         options = listOf(
-            OnboardingOption("🌅", "Early morning"),
-            OnboardingOption("☀️", "Late morning"),
+            OnboardingOption("🌅", "Morning"),
             OnboardingOption("🌤️", "Afternoon"),
             OnboardingOption("🌆", "Evening"),
             OnboardingOption("🌙", "Late night"),
@@ -107,7 +105,6 @@ val onboardingSteps = listOf(
         options = listOf(
             OnboardingOption("📈", "Track my progress"),
             OnboardingOption("🎯", "Build better habits"),
-            OnboardingOption("⚡", "Stay consistent"),
             OnboardingOption("🏆", "Achieve goals faster"),
             OnboardingOption("🧠", "Understand myself better"),
             OnboardingOption("✨", "Just exploring")
@@ -124,8 +121,8 @@ fun OnboardingScreen(
     onSkip: () -> Unit
 ) {
     val stepData = onboardingSteps[step - 1]
-    var selectedOption by remember { mutableStateOf<String?>(null) }
-    val totalSteps = 6
+    var selectedOption by remember(step) { mutableStateOf<String?>(null) }
+    val totalSteps = onboardingSteps.size
 
     Box(
         modifier = Modifier
@@ -145,42 +142,43 @@ fun OnboardingScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Back button
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(BackButtonBackground)
-                        .clickable { onNavigateBack() },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "Back",
-                        tint = Color.White,
-                        modifier = Modifier.size(28.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                // Progress bar
-                Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    repeat(totalSteps) { index ->
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(4.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(
-                                    if (index < step) ProgressActiveColor
-                                    else ProgressInactiveColor
-                                )
+                // Back button - only show if not on first step
+                if (step > 1) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(BackButtonBackground)
+                            .clickable { onNavigateBack() },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                            contentDescription = "Back",
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
                         )
                     }
+
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
+
+                // Progress bar - single bar that fills based on progress
+                val progress = step.toFloat() / totalSteps.toFloat()
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(ProgressInactiveColor)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .fillMaxWidth(progress)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(ProgressActiveColor)
+                    )
                 }
             }
 
@@ -206,7 +204,7 @@ fun OnboardingScreen(
                 modifier = Modifier
                     .weight(1f)
                     .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 stepData.options.forEach { option ->
                     val isSelected = selectedOption == option.text
@@ -214,27 +212,36 @@ fun OnboardingScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
+                            .clip(RoundedCornerShape(12.dp))
+                            .then(
+                                if (isSelected) {
+                                    Modifier.border(
+                                        width = 2.dp,
+                                        color = SelectedBorderColor,
+                                        shape = RoundedCornerShape(12.dp)
+                                    )
+                                } else Modifier
+                            )
                             .background(
-                                if (isSelected) CardBackground.copy(alpha = 0.9f)
+                                if (isSelected) SelectedCardBackground
                                 else CardBackground
                             )
                             .clickable {
                                 selectedOption = option.text
                             }
-                            .padding(horizontal = 20.dp, vertical = 18.dp),
+                            .padding(horizontal = 16.dp, vertical = 14.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = option.emoji,
-                            fontSize = 24.sp
+                            fontSize = 20.sp
                         )
 
-                        Spacer(modifier = Modifier.width(16.dp))
+                        Spacer(modifier = Modifier.width(12.dp))
 
                         Text(
                             text = option.text,
-                            fontSize = 17.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Medium,
                             color = Color.White
                         )
