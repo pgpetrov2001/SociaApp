@@ -1,0 +1,70 @@
+{
+  "questions": [
+    {
+      "step": 1,
+      "question": "What's your biggest challenge right now?",
+      "answers": [
+        { "emoji": "😰", "text": "Fear of rejection" },
+        { "emoji": "🤐", "text": "Not knowing what to say" },
+        { "emoji": "😶", "text": "Too shy to approach" },
+        { "emoji": "💔", "text": "Getting ghosted or flaked on" },
+        { "emoji": "🤷", "text": "Just can't meet new people" }
+      ]
+    },
+    {
+      "step": 2,
+      "question": "How old are you?",
+      "answers": [
+        { "emoji": "🧑", "text": "18-21" },
+        { "emoji": "👨", "text": "22-27" },
+        { "emoji": "🧔", "text": "28-35" },
+        { "emoji": "👔", "text": "36-45" },
+        { "emoji": "🎩", "text": "46+" }
+      ]
+    },
+    {
+      "step": 3,
+      "question": "How often do you approach someone you're interested in?",
+      "answers": [
+        { "emoji": "🚫", "text": "Never, I'm too nervous" },
+        { "emoji": "😬", "text": "Rarely, only if it's easy" },
+        { "emoji": "🙂", "text": "Sometimes when I feel confident" },
+        { "emoji": "💪", "text": "Often, but want to improve" },
+        { "emoji": "🔥", "text": "Regularly, need better results" }
+      ]
+    },
+    {
+      "step": 4,
+      "question": "What holds you back the most?",
+      "answers": [
+        { "emoji": "😓", "text": "Fear of looking awkward" },
+        { "emoji": "💭", "text": "Overthinking what to say" },
+        { "emoji": "😔", "text": "Low self-confidence" },
+        { "emoji": "🏃", "text": "I freeze up in the moment" },
+        { "emoji": "❌", "text": "Past rejections hurt" }
+      ]
+    },
+    {
+      "step": 5,
+      "question": "What's your main goal?",
+      "answers": [
+        { "emoji": "💬", "text": "Start more conversations" },
+        { "emoji": "💪", "text": "Build unshakeable confidence" },
+        { "emoji": "❤️", "text": "Get more dates" },
+        { "emoji": "💑", "text": "Find a girlfriend" },
+        { "emoji": "🌟", "text": "Become more social overall" }
+      ]
+    },
+    {
+      "step": 6,
+      "question": "How can we help you best?",
+      "answers": [
+        { "emoji": "⏰", "text": "Daily motivation & reminders" },
+        { "emoji": "💡", "text": "Conversation tips & openers" },
+        { "emoji": "📊", "text": "Track my progress" },
+        { "emoji": "🎯", "text": "Daily approach challenges" },
+        { "emoji": "🧠", "text": "Mindset & confidence coaching" }
+      ]
+    }
+  ]
+}

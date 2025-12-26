@@ -116,7 +116,7 @@ val onboardingSteps = listOf(
 @Composable
 fun OnboardingScreen(
     step: Int, // 1 to 6
-    onNavigateNext: () -> Unit,
+    onNavigateNext: (selectedAnswer: String?) -> Unit,
     onNavigateBack: () -> Unit,
     onSkip: () -> Unit
 ) {
@@ -274,7 +274,7 @@ fun OnboardingScreen(
                             Modifier.clickable(
                                 interactionSource = buttonInteractionSource,
                                 indication = null
-                            ) { onNavigateNext() }
+                            ) { onNavigateNext(selectedOption) }
                         } else {
                             Modifier
                         }

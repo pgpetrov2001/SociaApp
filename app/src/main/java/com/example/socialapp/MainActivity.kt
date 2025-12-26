@@ -34,6 +34,8 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation() {
     var currentScreen by remember { mutableStateOf<Screen>(Screen.Splash) }
     var previousScreen by remember { mutableStateOf<Screen?>(null) }
+    // Store user answers for generating interstitial messages
+    val userAnswers = remember { mutableStateMapOf<Int, String>() }
 
     Box(
         modifier = Modifier
@@ -90,9 +92,15 @@ fun AppNavigation() {
                 val step = screen.step
                 OnboardingScreen(
                     step = step,
-                    onNavigateNext = {
+                    onNavigateNext = { selectedAnswer ->
+                        // Store the answer
+                        if (selectedAnswer != null) {
+                            userAnswers[step] = selectedAnswer
+                        }
                         previousScreen = currentScreen
                         currentScreen = when (step) {
+                            3 -> Screen.Interstitial(1) // After Q3, show interstitial 1
+                            6 -> Screen.Interstitial(2) // After Q6, show interstitial 2
                             in 1..5 -> Screen.Onboarding(step + 1)
                             else -> Screen.Loading
                         }
@@ -101,12 +109,27 @@ fun AppNavigation() {
                         previousScreen = currentScreen
                         currentScreen = when (step) {
                             1 -> Screen.Splash
+                            4 -> Screen.Interstitial(1) // Go back to interstitial 1
                             else -> Screen.Onboarding(step - 1)
                         }
                     },
                     onSkip = {
                         previousScreen = currentScreen
                         currentScreen = Screen.Loading
+                    }
+                )
+            }
+
+            is Screen.Interstitial -> {
+                InterstitialScreen(
+                    interstitialNumber = screen.number,
+                    answers = userAnswers.toMap(),
+                    onNavigateNext = {
+                        previousScreen = currentScreen
+                        currentScreen = when (screen.number) {
+                            1 -> Screen.Onboarding(4) // After interstitial 1, go to Q4
+                            else -> Screen.Loading    // After interstitial 2, go to loading
+                        }
                     }
                 )
             }
@@ -172,6 +195,7 @@ private fun isForwardNavigation(previous: Screen?, current: Screen): Boolean {
     val screenOrder = listOf(
         Screen.Splash::class,
         Screen.Onboarding::class,
+        Screen.Interstitial::class,
         Screen.Loading::class,
         Screen.Results::class,
         Screen.Login::class,
@@ -185,6 +209,21 @@ private fun isForwardNavigation(previous: Screen?, current: Screen): Boolean {
     // Special case for onboarding steps
     if (previous is Screen.Onboarding && current is Screen.Onboarding) {
         return current.step > previous.step
+    }
+
+    // Special case: Onboarding step 3 -> Interstitial 1 is forward
+    if (previous is Screen.Onboarding && current is Screen.Interstitial) {
+        return true
+    }
+
+    // Special case: Interstitial -> Onboarding (continuing) is forward
+    if (previous is Screen.Interstitial && current is Screen.Onboarding) {
+        return true
+    }
+
+    // Special case: Interstitial 2 -> Loading is forward
+    if (previous is Screen.Interstitial && current is Screen.Loading) {
+        return true
     }
 
     val previousIndex = screenOrder.indexOfFirst { it.isInstance(previous) }
