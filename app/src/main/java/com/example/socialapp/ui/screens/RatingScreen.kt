@@ -23,12 +23,13 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-private val DarkBackground = Color(0xFF0A0A0A)
-private val CardBackground = Color(0xFF1C1C1E)
+// Colors matching OnboardingScreen
+private val DarkNavyBackground = Color(0xFF0D1B2A)
+private val CardBackground = Color(0xFF1B2838)
 private val AccentBlue = Color(0xFF4A90D9)
 private val AccentGreen = Color(0xFF39D98A)
 private val TextPrimary = Color.White
-private val TextSecondary = Color(0xFFB3B3B3)
+private val TextSecondary = Color(0xFF8E8E93)
 private val QuoteColor = Color(0xFF4A90D9)
 
 data class Testimonial(
@@ -70,7 +71,7 @@ fun RatingScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(DarkBackground)
+            .background(DarkNavyBackground)
     ) {
         Column(
             modifier = Modifier
@@ -83,9 +84,11 @@ fun RatingScreen(
             // Title
             Text(
                 text = "Give us a rating",
-                fontSize = 32.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                color = TextPrimary
+                color = TextPrimary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -94,67 +97,40 @@ fun RatingScreen(
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .verticalScroll(rememberScrollState())
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Rating card with heart badge
-                Box(
-                    modifier = Modifier.fillMaxWidth()
+                // Heart emoji
+                Text(
+                    text = "❤️",
+                    fontSize = 24.sp
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // 5 Stars
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    // Main card
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 20.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(CardBackground)
-                            .padding(24.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Spacer(modifier = Modifier.height(12.dp))
-
-                            // 5 Stars
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                            ) {
-                                repeat(5) {
-                                    Text(
-                                        text = "⭐",
-                                        fontSize = 32.sp
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(16.dp))
-
-                            // Encouraging text
-                            Text(
-                                text = "Users who left reviews were 27% more likely to successfully reach their dating goals.",
-                                fontSize = 15.sp,
-                                color = TextSecondary,
-                                textAlign = TextAlign.Center,
-                                lineHeight = 22.sp
-                            )
-                        }
-                    }
-
-                    // Heart badge positioned at top center
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(CardBackground),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    repeat(5) {
                         Text(
-                            text = "❤️",
-                            fontSize = 22.sp
+                            text = "⭐",
+                            fontSize = 32.sp
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Encouraging text
+                Text(
+                    text = "Users who left reviews were 27% more likely to successfully reach their dating goals.",
+                    fontSize = 14.sp,
+                    color = TextSecondary,
+                    textAlign = TextAlign.Center,
+                    lineHeight = 20.sp,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -169,22 +145,28 @@ fun RatingScreen(
                         }
                         append(" was made for people like you")
                     },
-                    fontSize = 24.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = TextPrimary,
                     textAlign = TextAlign.Center,
+                    lineHeight = 30.sp,
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
-                // Testimonial cards
-                testimonials.forEach { testimonial ->
+                // Testimonial cards - show only first one prominently like screenshot
+                TestimonialCard(testimonial = testimonials[0])
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Additional testimonials
+                testimonials.drop(1).forEach { testimonial ->
                     TestimonialCard(testimonial = testimonial)
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             // Continue button
@@ -225,26 +207,26 @@ private fun TestimonialCard(testimonial: Testimonial) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(12.dp))
             .background(CardBackground)
-            .padding(16.dp)
+            .padding(horizontal = 16.dp, vertical = 14.dp)
     ) {
         Column {
             // Header: Avatar, Name, Age, Rating
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Avatar circle with emoji
+                // Avatar circle with emoji - gold/yellow background
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(40.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFF2C2C2E)),
+                        .background(Color(0xFFD4A256)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = testimonial.emoji,
-                        fontSize = 24.sp
+                        fontSize = 20.sp
                     )
                 }
 
@@ -254,19 +236,19 @@ private fun TestimonialCard(testimonial: Testimonial) {
                     // Name and Age
                     Text(
                         text = "${testimonial.name}, ${testimonial.age}",
-                        fontSize = 17.sp,
+                        fontSize = 15.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = TextPrimary
                     )
 
                     // Stars
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(2.dp)
+                        horizontalArrangement = Arrangement.spacedBy(1.dp)
                     ) {
                         repeat(testimonial.rating) {
                             Text(
                                 text = "⭐",
-                                fontSize = 14.sp
+                                fontSize = 12.sp
                             )
                         }
                     }
@@ -275,11 +257,11 @@ private fun TestimonialCard(testimonial: Testimonial) {
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Quote marks
+            // Quote marks - teal/blue color
             Text(
                 text = "❝",
-                fontSize = 28.sp,
-                color = QuoteColor,
+                fontSize = 24.sp,
+                color = Color(0xFF5BA8A0),
                 fontWeight = FontWeight.Bold
             )
 
@@ -288,9 +270,9 @@ private fun TestimonialCard(testimonial: Testimonial) {
             // Quote text
             Text(
                 text = testimonial.quote,
-                fontSize = 15.sp,
+                fontSize = 14.sp,
                 color = TextSecondary,
-                lineHeight = 22.sp
+                lineHeight = 20.sp
             )
         }
     }

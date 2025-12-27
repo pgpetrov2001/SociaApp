@@ -1,7 +1,9 @@
 package com.example.socialapp.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -60,6 +62,8 @@ fun SocialTrackerScreen(
     var showAddInteractionModal by remember { mutableStateOf(false) }
     var showNotesHistoryModal by remember { mutableStateOf(false) }
     var showSubscriptionModal by remember { mutableStateOf(false) }
+    var showStatsSheet by remember { mutableStateOf(false) }
+    var showHintsSheet by remember { mutableStateOf(false) }
 
     // Snackbar state
     val snackbarHostState = remember { SnackbarHostState() }
@@ -67,7 +71,8 @@ fun SocialTrackerScreen(
 
     // Determine if any modal is visible
     val isAnyModalVisible = showActivityHistoryModal || showSettingsModal ||
-        showAddInteractionModal || showNotesHistoryModal || showSubscriptionModal
+        showAddInteractionModal || showNotesHistoryModal || showSubscriptionModal ||
+        showStatsSheet || showHintsSheet
 
     Box(modifier = modifier.fillMaxSize()) {
         Scaffold(
@@ -144,8 +149,8 @@ fun SocialTrackerScreen(
                     onClick = { showNotesHistoryModal = true }
                 )
 
-                // Extra spacing at bottom for FAB
-                Spacer(modifier = Modifier.height(Spacing.lg))
+                // Extra spacing at bottom for FAB and bottom bar
+                Spacer(modifier = Modifier.height(80.dp))
             }
         }
 
@@ -213,6 +218,29 @@ fun SocialTrackerScreen(
             isVisible = showNotesHistoryModal,
             interactions = uiState.interactions,
             onDismiss = { showNotesHistoryModal = false }
+        )
+
+        // Statistics Bottom Sheet
+        if (showStatsSheet) {
+            StatisticsBottomSheet(
+                stats = stats,
+                monthlyActivity = stats.getMonthlyActivity(6),
+                onDismiss = { showStatsSheet = false }
+            )
+        }
+
+        // Hints Bottom Sheet
+        if (showHintsSheet) {
+            HintsBottomSheet(
+                onDismiss = { showHintsSheet = false }
+            )
+        }
+
+        // Bottom Navigation Bar
+        BottomNavBar(
+            onHintsClick = { showHintsSheet = true },
+            onStatsClick = { showStatsSheet = true },
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
 
         // Snackbar at top of screen
@@ -389,6 +417,243 @@ private fun getEncouragingMessage(currentCount: Int, quota: Int): String {
         progress >= 50 -> "$currentCount out of $quota complete! Halfway done!"
         progress >= 25 -> "$currentCount out of $quota complete! Keep it up!"
         else -> "$currentCount out of $quota complete! Great start!"
+    }
+}
+
+/**
+ * Minimal bottom bar - iOS style with small icon buttons
+ */
+@Composable
+private fun BottomNavBar(
+    onHintsClick: () -> Unit,
+    onStatsClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(bottom = 4.dp)
+    ) {
+        // Left button - Hints (grid icon)
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterStart)
+                .padding(start = 16.dp)
+                .size(44.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(SurfaceElevated)
+                .clickable { onHintsClick() },
+            contentAlignment = Alignment.Center
+        ) {
+            GridIcon(color = TextSecondary)
+        }
+
+        // Center - Home indicator line
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 4.dp)
+                .width(134.dp)
+                .height(5.dp)
+                .clip(RoundedCornerShape(2.5.dp))
+                .background(TextMuted.copy(alpha = 0.5f))
+        )
+
+        // Right button - Stats (bar chart icon)
+        Box(
+            modifier = Modifier
+                .align(Alignment.CenterEnd)
+                .padding(end = 16.dp)
+                .size(44.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(SurfaceElevated)
+                .clickable { onStatsClick() },
+            contentAlignment = Alignment.Center
+        ) {
+            BarChartIcon(color = TextSecondary)
+        }
+    }
+}
+
+@Composable
+private fun GridIcon(color: androidx.compose.ui.graphics.Color) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(3.dp)
+    ) {
+        repeat(2) {
+            Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                repeat(2) {
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(RoundedCornerShape(1.5.dp))
+                            .background(color)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun BarChartIcon(color: androidx.compose.ui.graphics.Color) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(8.dp)
+                .clip(RoundedCornerShape(1.dp))
+                .background(color)
+        )
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(14.dp)
+                .clip(RoundedCornerShape(1.dp))
+                .background(color)
+        )
+        Box(
+            modifier = Modifier
+                .width(4.dp)
+                .height(10.dp)
+                .clip(RoundedCornerShape(1.dp))
+                .background(color)
+        )
+    }
+}
+
+/**
+ * Hints bottom sheet with conversation openers
+ */
+@Composable
+private fun HintsBottomSheet(
+    onDismiss: () -> Unit
+) {
+    val openers = listOf(
+        "💬" to "Hey, I noticed your [item/accessory] - where did you get it?",
+        "😊" to "You look like you're having a good day! What's the secret?",
+        "🎵" to "What song would you say describes your vibe right now?",
+        "☕" to "I'm grabbing coffee - any recommendations around here?",
+        "📚" to "Reading anything good lately? I need suggestions!",
+        "🌟" to "I have to say, you have great energy. What do you do?",
+        "🎬" to "Seen any good movies or shows lately?",
+        "✈️" to "You look like someone who's been on adventures - what's your favorite place?"
+    )
+
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
+        // Background overlay
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(androidx.compose.ui.graphics.Color.Black.copy(alpha = 0.5f))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { onDismiss() }
+        )
+
+        // Bottom sheet content
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
+                .background(SurfaceElevatedHigher)
+                .padding(Spacing.lg)
+                .navigationBarsPadding(),
+            verticalArrangement = Arrangement.spacedBy(Spacing.md)
+        ) {
+            // Handle bar
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(40.dp)
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(TextMuted.copy(alpha = 0.3f))
+            )
+
+            // Title
+            Text(
+                text = "Conversation Starters",
+                style = MaterialTheme.typography.headlineSmall,
+                color = TextPrimary,
+                fontWeight = FontWeight.Bold
+            )
+
+            Text(
+                text = "Tap to copy, then go start a conversation!",
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextSecondary
+            )
+
+            Spacer(modifier = Modifier.height(Spacing.xs))
+
+            // Random opener highlight
+            val randomOpener = remember { openers.random() }
+            OpenerCard(
+                emoji = randomOpener.first,
+                text = randomOpener.second,
+                isHighlighted = true
+            )
+
+            // Divider
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(TextMuted.copy(alpha = 0.2f))
+            )
+
+            // More openers
+            Text(
+                text = "More ideas:",
+                style = MaterialTheme.typography.labelMedium,
+                color = TextSecondary
+            )
+
+            openers.filter { it != randomOpener }.take(3).forEach { (emoji, text) ->
+                OpenerCard(emoji = emoji, text = text, isHighlighted = false)
+            }
+
+            Spacer(modifier = Modifier.height(Spacing.sm))
+        }
+    }
+}
+
+@Composable
+private fun OpenerCard(
+    emoji: String,
+    text: String,
+    isHighlighted: Boolean
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (isHighlighted) ActivityHigh.copy(alpha = 0.15f) else SurfaceElevated)
+            .clickable { /* TODO: Copy to clipboard */ }
+            .padding(Spacing.md),
+        horizontalArrangement = Arrangement.spacedBy(Spacing.sm),
+        verticalAlignment = Alignment.Top
+    ) {
+        Text(
+            text = emoji,
+            fontSize = 20.sp
+        )
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = if (isHighlighted) TextPrimary else TextSecondary,
+            fontWeight = if (isHighlighted) FontWeight.Medium else FontWeight.Normal,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
