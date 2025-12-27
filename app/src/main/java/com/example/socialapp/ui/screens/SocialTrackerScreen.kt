@@ -332,7 +332,7 @@ private fun SocialTrackerFAB(onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier.size(64.dp),
         shape = CircleShape,
-        containerColor = SurfaceElevated,
+        containerColor = AccentBlue,
         contentColor = TextPrimary
     ) {
         Icon(

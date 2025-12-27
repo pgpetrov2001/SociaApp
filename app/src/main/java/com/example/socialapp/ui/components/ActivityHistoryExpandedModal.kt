@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -488,7 +490,6 @@ fun StatisticsBottomSheet(
     onDismiss: () -> Unit
 ) {
     var currentPage by remember { mutableStateOf(0) }
-    val pageCount = 3
 
     // Calculate statistics
     val currentMonth = monthlyActivity.getOrNull(0)
@@ -528,13 +529,13 @@ fun StatisticsBottomSheet(
                 ) { onDismiss() }
         )
 
-        // Full height sheet
+        // Sheet
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.85f)
+                .fillMaxHeight(0.7f)
                 .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp))
-                .background(SurfaceElevatedHigher)
+                .background(BackgroundPrimary)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null
@@ -549,10 +550,10 @@ fun StatisticsBottomSheet(
             ) {
                 Box(
                     modifier = Modifier
-                        .width(40.dp)
+                        .width(36.dp)
                         .height(4.dp)
                         .clip(RoundedCornerShape(2.dp))
-                        .background(TextMuted.copy(alpha = 0.3f))
+                        .background(TextMuted.copy(alpha = 0.4f))
                 )
             }
 
@@ -560,64 +561,66 @@ fun StatisticsBottomSheet(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Spacing.lg),
+                    .padding(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = "Statistics",
-                    style = MaterialTheme.typography.headlineMedium,
+                    fontSize = 24.sp,
                     color = TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
-                IconButton(
-                    onClick = onDismiss,
+                Box(
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(28.dp)
                         .clip(CircleShape)
-                        .background(SurfaceElevated)
+                        .background(TextMuted.copy(alpha = 0.2f))
+                        .clickable { onDismiss() },
+                    contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
                         tint = TextSecondary,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
 
-            // Page tabs
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Minimal tabs
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = Spacing.lg, vertical = Spacing.md),
-                horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 listOf("Overview", "Monthly", "Weekly").forEachIndexed { index, title ->
-                    Box(
+                    Text(
+                        text = title,
+                        fontSize = 14.sp,
+                        color = if (currentPage == index) ActivityHigh else TextMuted,
+                        fontWeight = if (currentPage == index) FontWeight.SemiBold else FontWeight.Normal,
                         modifier = Modifier
-                            .weight(1f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (currentPage == index) ActivityHigh else SurfaceElevated)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(if (currentPage == index) ActivityHigh.copy(alpha = 0.15f) else Color.Transparent)
                             .clickable { currentPage = index }
-                            .padding(vertical = 10.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = title,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (currentPage == index) Color.White else TextSecondary,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
                 }
             }
 
-            // Page content
-            Box(
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Page content with scroll
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = Spacing.lg)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 32.dp)
             ) {
                 when (currentPage) {
                     0 -> OverviewPage(
@@ -652,47 +655,44 @@ private fun OverviewPage(
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Spacing.md)
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Big number display
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(16.dp))
-                .background(SurfaceElevated)
-                .padding(Spacing.lg),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = currentMonthTotal.toString(),
-                    fontSize = 56.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = ActivityHigh
-                )
-                Text(
-                    text = "interactions this month",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
-                )
-            }
-        }
+        // Big number - no box
+        Text(
+            text = currentMonthTotal.toString(),
+            fontSize = 72.sp,
+            fontWeight = FontWeight.Bold,
+            color = ActivityHigh
+        )
+        Text(
+            text = "interactions this month",
+            fontSize = 14.sp,
+            color = TextSecondary
+        )
 
-        // Comparison cards
-        ComparisonCard(
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Comparison rows - minimal, no boxes
+        ComparisonRow(
             title = "vs Last Month",
             percentage = vsLastMonth,
-            subtitle = "Last month: $lastMonthTotal"
+            subtitle = "$lastMonthTotal"
         )
-        ComparisonCard(
-            title = "vs Your Average",
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ComparisonRow(
+            title = "vs Average",
             percentage = vsAverage,
-            subtitle = "Average: $averageInteractions"
+            subtitle = "$averageInteractions"
         )
-        ComparisonCard(
-            title = "vs Your Best",
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ComparisonRow(
+            title = "vs Best",
             percentage = vsBest,
-            subtitle = "Best: $bestMonthTotal"
+            subtitle = "$bestMonthTotal"
         )
     }
 }
@@ -702,130 +702,115 @@ private fun MonthlyChartPage(
     monthlyActivity: List<MonthActivity>,
     maxValue: Int
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Spacing.lg)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Monthly Trend",
-            style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary,
-            fontWeight = FontWeight.SemiBold
+            fontSize = 16.sp,
+            color = TextSecondary,
+            fontWeight = FontWeight.Medium
         )
 
-        // Bar chart
-        Box(
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Bar chart - no box background
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(SurfaceElevated)
-                .padding(Spacing.md)
+                .height(160.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.Bottom
         ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                monthlyActivity.reversed().take(6).forEach { month ->
-                    val heightFraction = if (maxValue > 0) {
-                        month.totalInteractions.toFloat() / maxValue
-                    } else 0f
-                    val monthName = month.yearMonth.month.getDisplayName(
-                        TextStyle.SHORT, Locale.getDefault()
-                    )
+            monthlyActivity.reversed().take(6).forEach { month ->
+                val heightFraction = if (maxValue > 0) {
+                    month.totalInteractions.toFloat() / maxValue
+                } else 0f
+                val monthName = month.yearMonth.month.getDisplayName(
+                    TextStyle.SHORT, Locale.getDefault()
+                )
+                val isCurrent = month == monthlyActivity.firstOrNull()
 
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        // Value on top
-                        Text(
-                            text = month.totalInteractions.toString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TextSecondary,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                        // Bar
-                        Box(
-                            modifier = Modifier
-                                .width(28.dp)
-                                .fillMaxHeight(heightFraction.coerceAtLeast(0.05f))
-                                .clip(RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp))
-                                .background(
-                                    if (month == monthlyActivity.firstOrNull()) ActivityHigh
-                                    else ActivityMedium
-                                )
-                        )
-                        // Month label
-                        Text(
-                            text = monthName,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TextMuted,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = month.totalInteractions.toString(),
+                        fontSize = 12.sp,
+                        color = if (isCurrent) ActivityHigh else TextMuted,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .width(32.dp)
+                            .fillMaxHeight(heightFraction.coerceAtLeast(0.08f))
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(if (isCurrent) ActivityHigh else ActivityMedium.copy(alpha = 0.5f))
+                    )
+                    Text(
+                        text = monthName,
+                        fontSize = 11.sp,
+                        color = if (isCurrent) TextPrimary else TextMuted,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
         }
 
-        // Monthly breakdown list
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Monthly breakdown - minimal rows
         Text(
-            text = "Monthly Breakdown",
-            style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary,
-            fontWeight = FontWeight.SemiBold
+            text = "Breakdown",
+            fontSize = 16.sp,
+            color = TextSecondary,
+            fontWeight = FontWeight.Medium
         )
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(Spacing.sm)
-        ) {
-            monthlyActivity.take(4).forEach { month ->
-                val monthName = month.yearMonth.month.getDisplayName(
-                    TextStyle.FULL, Locale.getDefault()
-                )
-                val progress = if (maxValue > 0) {
-                    month.totalInteractions.toFloat() / maxValue
-                } else 0f
+        Spacer(modifier = Modifier.height(16.dp))
 
-                Row(
+        monthlyActivity.take(4).forEach { month ->
+            val monthName = month.yearMonth.month.getDisplayName(
+                TextStyle.SHORT, Locale.getDefault()
+            )
+            val progress = if (maxValue > 0) {
+                month.totalInteractions.toFloat() / maxValue
+            } else 0f
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = monthName,
+                    fontSize = 14.sp,
+                    color = TextSecondary,
+                    modifier = Modifier.width(48.dp)
+                )
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(SurfaceElevated)
-                        .padding(Spacing.sm),
-                    verticalAlignment = Alignment.CenterVertically
+                        .weight(1f)
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp))
+                        .background(BackgroundTertiary)
                 ) {
-                    Text(
-                        text = monthName,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextPrimary,
-                        modifier = Modifier.width(80.dp)
-                    )
                     Box(
                         modifier = Modifier
-                            .weight(1f)
-                            .height(8.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(BackgroundTertiary)
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .fillMaxWidth(progress)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(ActivityHigh)
-                        )
-                    }
-                    Text(
-                        text = month.totalInteractions.toString(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary,
-                        fontWeight = FontWeight.SemiBold,
-                        modifier = Modifier.padding(start = Spacing.sm)
+                            .fillMaxHeight()
+                            .fillMaxWidth(progress)
+                            .clip(RoundedCornerShape(3.dp))
+                            .background(ActivityHigh)
                     )
                 }
+                Text(
+                    text = month.totalInteractions.toString(),
+                    fontSize = 14.sp,
+                    color = TextPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.padding(start = 12.dp)
+                )
             }
         }
     }
@@ -835,169 +820,115 @@ private fun MonthlyChartPage(
 private fun WeeklyChartPage(stats: SocialStats) {
     val weeklyData = remember {
         listOf(
-            "Mon" to (3..8).random(),
-            "Tue" to (2..7).random(),
-            "Wed" to (4..9).random(),
-            "Thu" to (1..6).random(),
-            "Fri" to (5..10).random(),
-            "Sat" to (6..12).random(),
-            "Sun" to (4..8).random()
+            "M" to (3..8).random(),
+            "T" to (2..7).random(),
+            "W" to (4..9).random(),
+            "T" to (1..6).random(),
+            "F" to (5..10).random(),
+            "S" to (6..12).random(),
+            "S" to (4..8).random()
         )
     }
     val maxWeekly = weeklyData.maxOf { it.second }
+    val weeklyTotal = weeklyData.sumOf { it.second }
+    val dailyAvg = weeklyTotal / 7.0
 
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(Spacing.lg)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "This Week",
-            style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary,
-            fontWeight = FontWeight.SemiBold
+            fontSize = 16.sp,
+            color = TextSecondary,
+            fontWeight = FontWeight.Medium
         )
 
-        // Weekly bar chart
-        Box(
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Weekly bar chart - no box
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(180.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(SurfaceElevated)
-                .padding(Spacing.md)
+                .height(140.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.Bottom
         ) {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                weeklyData.forEachIndexed { index, (day, value) ->
-                    val heightFraction = value.toFloat() / maxWeekly
-                    val isToday = index == java.time.LocalDate.now().dayOfWeek.value - 1
+            weeklyData.forEachIndexed { index, (day, value) ->
+                val heightFraction = value.toFloat() / maxWeekly
+                val isToday = index == java.time.LocalDate.now().dayOfWeek.value - 1
 
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Bottom,
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            text = value.toString(),
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (isToday) ActivityHigh else TextSecondary,
-                            modifier = Modifier.padding(bottom = 4.dp)
-                        )
-                        Box(
-                            modifier = Modifier
-                                .width(24.dp)
-                                .fillMaxHeight(heightFraction.coerceAtLeast(0.1f))
-                                .clip(RoundedCornerShape(6.dp))
-                                .background(if (isToday) ActivityHigh else ActivityMedium.copy(alpha = 0.6f))
-                        )
-                        Text(
-                            text = day,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (isToday) ActivityHigh else TextMuted,
-                            fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = value.toString(),
+                        fontSize = 11.sp,
+                        color = if (isToday) ActivityHigh else TextMuted,
+                        modifier = Modifier.padding(bottom = 6.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .width(28.dp)
+                            .fillMaxHeight(heightFraction.coerceAtLeast(0.1f))
+                            .clip(RoundedCornerShape(6.dp))
+                            .background(if (isToday) ActivityHigh else ActivityMedium.copy(alpha = 0.4f))
+                    )
+                    Text(
+                        text = day,
+                        fontSize = 12.sp,
+                        color = if (isToday) ActivityHigh else TextMuted,
+                        fontWeight = if (isToday) FontWeight.Bold else FontWeight.Normal,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
         }
 
-        // Stats summary
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Stats summary - minimal, no boxes
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Spacing.sm)
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            StatSummaryCard(
-                title = "Weekly Total",
-                value = weeklyData.sumOf { it.second }.toString(),
-                modifier = Modifier.weight(1f)
+            StatValue(
+                value = weeklyTotal.toString(),
+                label = "Total"
             )
-            StatSummaryCard(
-                title = "Daily Avg",
-                value = String.format("%.1f", weeklyData.sumOf { it.second } / 7.0),
-                modifier = Modifier.weight(1f)
+            StatValue(
+                value = String.format("%.1f", dailyAvg),
+                label = "Daily avg"
             )
-            StatSummaryCard(
-                title = "Best Day",
+            StatValue(
                 value = weeklyData.maxOf { it.second }.toString(),
-                modifier = Modifier.weight(1f)
+                label = "Best"
             )
-        }
-
-        // Activity heatmap preview
-        Text(
-            text = "Activity Pattern",
-            style = MaterialTheme.typography.titleMedium,
-            color = TextPrimary,
-            fontWeight = FontWeight.SemiBold
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .background(SurfaceElevated)
-                .padding(Spacing.md)
-        ) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                repeat(4) { week ->
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        repeat(7) { day ->
-                            val intensity = (0..4).random()
-                            val color = when (intensity) {
-                                0 -> BackgroundTertiary
-                                1 -> ActivityLow
-                                2 -> ActivityMedium
-                                3 -> ActivityHigh
-                                else -> ActivityMax
-                            }
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .clip(RoundedCornerShape(3.dp))
-                                    .background(color)
-                            )
-                        }
-                    }
-                }
-            }
         }
     }
 }
 
 @Composable
-private fun StatSummaryCard(
-    title: String,
+private fun StatValue(
     value: String,
-    modifier: Modifier = Modifier
+    label: String
 ) {
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(SurfaceElevated)
-            .padding(Spacing.md),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
-            fontSize = 24.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = ActivityHigh
         )
         Text(
-            text = title,
-            style = MaterialTheme.typography.labelSmall,
-            color = TextSecondary
+            text = label,
+            fontSize = 12.sp,
+            color = TextMuted
         )
     }
 }
 
 @Composable
-private fun ComparisonCard(
+private fun ComparisonRow(
     title: String,
     percentage: Int,
     subtitle: String
@@ -1018,25 +949,21 @@ private fun ComparisonCard(
     }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(SurfaceElevated)
-            .padding(Spacing.md),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column {
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium,
+                fontSize = 15.sp,
                 color = TextPrimary,
                 fontWeight = FontWeight.Medium
             )
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                fontSize = 13.sp,
+                color = TextMuted
             )
         }
         Row(
@@ -1051,8 +978,8 @@ private fun ComparisonCard(
             )
             Text(
                 text = statusText,
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary
+                fontSize = 13.sp,
+                color = TextMuted
             )
         }
     }
