@@ -7,6 +7,8 @@ sealed class Screen {
     object Loading : Screen()
     object Results : Screen()
     object Login : Screen()
+    object Benefits : Screen()
+    object NotificationPermission : Screen()
     object Paywall : Screen()
     object Rating : Screen()
     object Main : Screen()

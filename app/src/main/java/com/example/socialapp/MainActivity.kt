@@ -156,6 +156,29 @@ fun AppNavigation() {
                 LoginScreen(
                     onNavigateNext = {
                         previousScreen = currentScreen
+                        currentScreen = Screen.Benefits
+                    }
+                )
+            }
+
+            is Screen.Benefits -> {
+                BenefitsScreen(
+                    onNavigateNext = {
+                        previousScreen = currentScreen
+                        currentScreen = Screen.NotificationPermission
+                    }
+                )
+            }
+
+            is Screen.NotificationPermission -> {
+                NotificationPermissionScreen(
+                    onEnableNotifications = {
+                        // TODO: Request notification permission here
+                        previousScreen = currentScreen
+                        currentScreen = Screen.Paywall
+                    },
+                    onSkip = {
+                        previousScreen = currentScreen
                         currentScreen = Screen.Paywall
                     }
                 )
@@ -199,6 +222,8 @@ private fun isForwardNavigation(previous: Screen?, current: Screen): Boolean {
         Screen.Loading::class,
         Screen.Results::class,
         Screen.Login::class,
+        Screen.Benefits::class,
+        Screen.NotificationPermission::class,
         Screen.Paywall::class,
         Screen.Rating::class,
         Screen.Main::class
