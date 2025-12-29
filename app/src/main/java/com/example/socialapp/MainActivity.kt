@@ -36,6 +36,7 @@ fun AppNavigation() {
     var previousScreen by remember { mutableStateOf<Screen?>(null) }
     // Store user answers for generating interstitial messages
     val userAnswers = remember { mutableStateMapOf<Int, String>() }
+    var userName by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -83,6 +84,16 @@ fun AppNavigation() {
                 SplashScreen(
                     onNavigateNext = {
                         previousScreen = currentScreen
+                        currentScreen = Screen.NameEntry
+                    }
+                )
+            }
+
+            is Screen.NameEntry -> {
+                NameEntryScreen(
+                    onNavigateNext = { name ->
+                        userName = name
+                        previousScreen = currentScreen
                         currentScreen = Screen.Onboarding(1)
                     }
                 )
@@ -108,7 +119,7 @@ fun AppNavigation() {
                     onNavigateBack = {
                         previousScreen = currentScreen
                         currentScreen = when (step) {
-                            1 -> Screen.Splash
+                            1 -> Screen.NameEntry
                             4 -> Screen.Interstitial(1) // Go back to interstitial 1
                             else -> Screen.Onboarding(step - 1)
                         }
@@ -217,6 +228,7 @@ fun AppNavigation() {
 private fun isForwardNavigation(previous: Screen?, current: Screen): Boolean {
     val screenOrder = listOf(
         Screen.Splash::class,
+        Screen.NameEntry::class,
         Screen.Onboarding::class,
         Screen.Interstitial::class,
         Screen.Loading::class,

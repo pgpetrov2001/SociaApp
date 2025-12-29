@@ -12,6 +12,7 @@ A mobile app helping users overcome social anxiety and build confidence in appro
 | Screen | Purpose |
 |--------|---------|
 | **Splash** | Animated logo with "FLOW" branding, auto-advances after 3s |
+| **Name Entry** | User enters their name to personalize the experience |
 | **Onboarding (6 steps)** | Personalization quiz: challenges, age, goals, blockers |
 | **Interstitial (x2)** | Motivational messages based on user's answers |
 | **Loading** | Animated progress bar while "building personalized plan" |
@@ -38,7 +39,6 @@ A mobile app helping users overcome social anxiety and build confidence in appro
 ## Key Features
 
 - **Daily Tracking** - Log conversations with quality ratings (1-4 stars)
-- **Streak System** - Track consecutive days of activity
 - **Activity Calendar** - 6-month heatmap view of progress
 - **Notes Journal** - Add notes to each interaction
 - **Conversation Hints** - 8 starter templates for approaching people
@@ -47,10 +47,33 @@ A mobile app helping users overcome social anxiety and build confidence in appro
 
 ---
 
+## Streak System
+
+### Streak Tracking
+| Metric | Description |
+|--------|-------------|
+| **Current Streak** | Consecutive days with at least 1 logged interaction |
+| **Best Streak** | All-time highest streak achieved |
+
+### Streak Milestone Notifications
+
+| Milestone | Notification |
+|-----------|--------------|
+| **1 Day** | "Great start! You logged your first day!" |
+| **3 Days** | "3 days strong! You're building momentum!" |
+| **7 Days (1 Week)** | "1 week streak! Consistency is key!" |
+| **14 Days (2 Weeks)** | "2 weeks! You're becoming unstoppable!" |
+| **30 Days (1 Month)** | "1 month streak! You're a champion!" |
+| **90 Days (3 Months)** | "90 days! True dedication!" |
+| **180 Days (6 Months)** | "Half a year! Incredible commitment!" |
+| **365 Days (1 Year)** | "1 YEAR STREAK! You're legendary!" |
+
+---
+
 ## User Flow
 
 ```
-Splash → Onboarding Quiz → Motivational Messages → Loading →
+Splash → Name Entry → Onboarding Quiz → Motivational Messages → Loading →
 Results → Login → Benefits → Notifications → Paywall →
 Rating → Social Tracker (Main App)
 ```
